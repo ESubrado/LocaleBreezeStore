@@ -15,12 +15,13 @@ class ItemUpdateSchema(Schema):
     price = fields.Float() 
     store_id = fields.Int()
 
-class StoreSchema(PlainStoreSchema):
-    items = fields.List(fields.Nested(lambda: ItemSchema()), dump_only=True)
 
 class ItemSchema(PlainItemSchema):
     store_id = fields.Int(required=True, load_only=True)
-    store = fields.Nested(lambda: StoreSchema(), dump_only=True)
+    store = fields.Nested(PlainStoreSchema(), dump_only=True)
+
+class StoreSchema(PlainStoreSchema):
+    items = fields.List(fields.Nested(PlainItemSchema(), dump_only=True))
 
 
 
