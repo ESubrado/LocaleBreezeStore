@@ -34,13 +34,13 @@ class StoreList(MethodView):
         return store
 
 
-@blp.route("/store/<string:store_id>")
+@blp.route("/store/<int:store_id>")
 class Store(MethodView):
-    blp.response(200, StoreSchema) ## Serialize output
+    @blp.response(200, StoreSchema) ## Serialize output
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
-        return store
-
+        return store    
+   
     def delete(self, store_id):
        store = StoreModel.query.get_or_404(store_id)
        db.session.delete(store)
