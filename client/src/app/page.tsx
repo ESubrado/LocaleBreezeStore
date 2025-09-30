@@ -5,10 +5,11 @@ export default function Home() {
   return (
     <>
       <Navigation />
+      
       <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen-90 p-8 pb-20 gap-16 sm:p-20">
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <h1 className="text-4xl font-bold text-center sm:text-left">
-            Welcome to{" "}Locale Breeze Store
+            Welcome to{" "}Locale Breeze Store Sample
           </h1>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
@@ -33,12 +34,14 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
+        
           <Image
             aria-hidden
             src="/globe.svg"
             alt="Globe icon"
             width={16}
             height={16}
+
           />
           Go to nextjs.org →
         </a>
