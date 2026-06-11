@@ -2,6 +2,14 @@ import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import TopProductsCarousel from "@/components/TopProductsCarousel";
 import type { ProductCardProps } from "@/components/ProductCard";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const storePillars = [
   {
@@ -110,18 +118,17 @@ export default function Home() {
                 useful day-to-day finds.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="#store-focus"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-stone-950 px-6 text-sm font-semibold text-white transition hover:bg-stone-800"
+                <Button asChild size="lg" className="h-12 rounded-full px-6">
+                  <a href="#store-focus">About the store</a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-12 rounded-full border-stone-300 bg-white/85 px-6 text-stone-950 hover:bg-white"
                 >
-                  About the store
-                </a>
-                <a
-                  href="#store-promise"
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-stone-300 bg-white/85 px-6 text-sm font-semibold text-stone-950 transition hover:bg-white"
-                >
-                  Store promise
-                </a>
+                  <a href="#store-promise">Store promise</a>
+                </Button>
               </div>
             </div>
           </div>
@@ -142,17 +149,21 @@ export default function Home() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             {storePillars.map((pillar) => (
-              <article
+              <Card
                 key={pillar.title}
-                className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm"
+                className="h-full gap-3 rounded-lg border-stone-200 bg-white py-5 shadow-sm"
               >
-                <h3 className="text-lg font-semibold text-stone-950">
-                  {pillar.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-stone-600">
-                  {pillar.description}
-                </p>
-              </article>
+                <CardHeader className="px-5">
+                  <CardTitle className="text-lg text-stone-950">
+                    {pillar.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-5">
+                  <CardDescription className="text-sm leading-6 text-stone-600">
+                    {pillar.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>

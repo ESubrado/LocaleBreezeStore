@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 export type ProductCardProps = {
   name: string;
@@ -28,7 +29,10 @@ export default function ProductCard({
   const visibleTags = compact ? tags.slice(0, 2) : tags;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <Card
+      role="article"
+      className="flex h-full flex-col gap-0 overflow-hidden rounded-lg border-stone-200 bg-white py-0 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    >
       <div
         className={`relative bg-stone-100 ${
           compact ? "aspect-[16/9]" : "aspect-[4/3]"
@@ -44,7 +48,9 @@ export default function ProductCard({
         />
       </div>
 
-      <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
+      <CardContent
+        className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}
+      >
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-[#e6f2ef] px-3 py-1 text-xs font-semibold text-[#24786b]">
             {category}
@@ -89,8 +95,8 @@ export default function ProductCard({
           ))}
         </div>
 
-        <div
-          className={`flex items-center justify-between border-t border-stone-100 ${
+        <CardFooter
+          className={`flex items-center justify-between border-t border-stone-100 px-0 pb-0 ${
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
           }`}
         >
@@ -102,8 +108,8 @@ export default function ProductCard({
           >
             {price}
           </span>
-        </div>
-      </div>
-    </article>
+        </CardFooter>
+      </CardContent>
+    </Card>
   );
 }
