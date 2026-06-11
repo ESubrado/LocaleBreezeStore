@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ExclusiveLoginDropdown from "@/components/ExclusiveLoginDropdown";
 
 const links = [
   { href: "/", label: "Home" },
@@ -40,6 +41,7 @@ export default function Navigation() {
               </Link>
             );
           })}
+          <ExclusiveLoginDropdown />
         </div>
       </div>
     </nav>
