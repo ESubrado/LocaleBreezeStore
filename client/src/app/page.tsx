@@ -1,52 +1,191 @@
-import Navigation from "@/app/navigation";
 import Image from "next/image";
+import Navigation from "@/components/Navigation";
+import TopProductsCarousel from "@/components/TopProductsCarousel";
+import type { ProductCardProps } from "@/components/ProductCard";
+
+const storePillars = [
+  {
+    title: "Digital and printable",
+    description:
+      "Prepared for downloads, printable resources, templates, and useful files alongside physical goods.",
+  },
+  {
+    title: "Practical physical goods",
+    description:
+      "Built to support books, calculators, inks, pens, computer parts, office supplies, and daily essentials.",
+  },
+  {
+    title: "Room to grow",
+    description:
+      "Flexible enough for new everyday product lines without changing the store's core experience.",
+  },
+];
+
+const topProducts: ProductCardProps[] = [
+  {
+    name: "Budget Calculator Workbook",
+    category: "Digital",
+    description:
+      "A spreadsheet-style calculator bundle for monthly budgets, simple forecasting, and printable summaries.",
+    format: "XLSX + PDF",
+    price: "$12.00",
+    imageAlt: "Calculator and notebooks representing a budget workbook",
+    imagePosition: "72% 65%",
+    tags: ["Download", "Printable", "Business"],
+  },
+  {
+    name: "Computer Basics Field Guide",
+    category: "Print",
+    description:
+      "A compact handbook covering everyday ports, cables, adapters, storage, and simple troubleshooting.",
+    format: "Booklet",
+    price: "$9.50",
+    imageAlt: "Books and computer parts representing a computer basics guide",
+    imagePosition: "78% 58%",
+    tags: ["Reference", "Beginner", "Tech"],
+  },
+  {
+    name: "Refill Ink Starter Pack",
+    category: "Print Supply",
+    description:
+      "Core ink colors for print-heavy work, sample labels, document prep, and everyday refill needs.",
+    format: "Physical",
+    price: "$22.00",
+    imageAlt: "Ink bottles and printer cartridges on a store counter",
+    imagePosition: "62% 79%",
+    tags: ["Ink", "Print", "Refill"],
+  },
+  {
+    name: "USB-C Adapter Kit",
+    category: "Computer Part",
+    description:
+      "Common adapters for connecting laptops, monitors, drives, chargers, and small accessories.",
+    format: "Physical",
+    price: "$16.00",
+    imageAlt: "USB cables, adapters, and computer connectors",
+    imagePosition: "83% 88%",
+    tags: ["USB-C", "Cable", "Adapter"],
+  },
+  {
+    name: "Printable Study Planner",
+    category: "Digital",
+    description:
+      "A clean weekly planner designed for students, tutors, and anyone organizing repeat study routines.",
+    format: "PDF",
+    price: "$5.00",
+    imageAlt: "Notebooks and paper goods representing a printable study planner",
+    imagePosition: "63% 55%",
+    tags: ["Download", "Planner", "School"],
+  },
+];
 
 export default function Home() {
   return (
     <>
       <Navigation />
-      
-      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen-90 p-8 pb-20 gap-16 sm:p-20">
-        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-          <h1 className="text-4xl font-bold text-center sm:text-left">
-            Welcome to{" "}Locale Breeze Store Sample
-          </h1>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>        
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-        
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
 
+      <main className="bg-[#f7faf7] text-stone-950">
+        <section className="relative isolate flex min-h-[72svh] items-center overflow-hidden">
+          <Image
+            src="/locale-breeze-general-store-hero.png"
+            alt="Books, notebooks, pens, ink, a calculator, cables, adapters, and computer parts arranged on a bright store counter"
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 -z-20 object-cover object-[64%_center]"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <div className="absolute inset-0 -z-10 bg-white/62" />
+
+          <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
+            <div className="max-w-2xl">
+              <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[#24786b]">
+                Everyday essentials, digital and print
+              </p>
+              <h1 className="text-5xl font-bold leading-tight text-stone-950 sm:text-6xl lg:text-7xl">
+                Locale Breeze Store
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-8 text-stone-700">
+                A flexible neighborhood-style store for digital products, print
+                materials, study tools, office supplies, computer basics, and
+                useful day-to-day finds.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="#store-focus"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-stone-950 px-6 text-sm font-semibold text-white transition hover:bg-stone-800"
+                >
+                  About the store
+                </a>
+                <a
+                  href="#store-promise"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-stone-300 bg-white/85 px-6 text-sm font-semibold text-stone-950 transition hover:bg-white"
+                >
+                  Store promise
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="store-focus"
+          className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-16"
+        >
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">
+              Store focus
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-stone-950 sm:text-4xl">
+              One store shape for useful products in many formats.
+            </h2>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {storePillars.map((pillar) => (
+              <article
+                key={pillar.title}
+                className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="text-lg font-semibold text-stone-950">
+                  {pillar.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-stone-600">
+                  {pillar.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <TopProductsCarousel products={topProducts} />
+
+        <section id="store-promise" className="border-t border-stone-200 bg-white">
+          <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:py-16">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-normal text-[#b15a2b]">
+                Store promise
+              </p>
+              <h2 className="mt-3 text-3xl font-bold text-stone-950">
+                Simple, adaptable, and practical.
+              </h2>
+            </div>
+
+            <div className="space-y-5 text-base leading-8 text-stone-700">
+              <p>
+                Locale Breeze Store is designed to feel clear and useful first:
+                easy to understand, ready for both digital and physical
+                products, and broad enough for common household, school, office,
+                and computer needs.
+              </p>
+              <p>
+                Whether the item is a downloadable file, a printed resource, a
+                pen, a bottle of ink, or a small computer part, the store keeps
+                the presentation grounded in practical everyday use.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
     </>
   );
 }
