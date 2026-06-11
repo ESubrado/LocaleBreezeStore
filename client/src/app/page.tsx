@@ -99,6 +99,7 @@ export default function Home() {
             alt="Books, notebooks, pens, ink, a calculator, cables, adapters, and computer parts arranged on a bright store counter"
             fill
             priority
+            loading="eager"
             sizes="100vw"
             className="absolute inset-0 -z-20 object-cover object-[64%_center]"
           />
