@@ -116,20 +116,7 @@ export default function Home() {
                 A flexible neighborhood-style store for digital products, print
                 materials, study tools, office supplies, computer basics, and
                 useful day-to-day finds.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="h-12 rounded-full px-6">
-                  <a href="#store-focus">About the store</a>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-12 rounded-full border-stone-300 bg-white/85 px-6 text-stone-950 hover:bg-white"
-                >
-                  <a href="#store-promise">Store promise</a>
-                </Button>
-              </div>
+              </p>             
             </div>
           </div>
         </section>
