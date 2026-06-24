@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getProductCatalogPageData } from "@/api/products";
+import { getProductCatalogPageData } from "@/localdata/products";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
