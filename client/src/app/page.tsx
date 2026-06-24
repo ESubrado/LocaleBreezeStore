@@ -32,6 +32,7 @@ const storePillars = [
 const topProducts: ProductCardProps[] = [
   {
     name: "Budget Calculator Workbook",
+    href: "/products/budget-calculator-workbook",
     category: "Digital",
     description:
       "A spreadsheet-style calculator bundle for monthly budgets, simple forecasting, and printable summaries.",
@@ -43,6 +44,7 @@ const topProducts: ProductCardProps[] = [
   },
   {
     name: "Computer Basics Field Guide",
+    href: "/products/computer-basics-field-guide",
     category: "Print",
     description:
       "A compact handbook covering everyday ports, cables, adapters, storage, and simple troubleshooting.",
@@ -54,6 +56,7 @@ const topProducts: ProductCardProps[] = [
   },
   {
     name: "Refill Ink Starter Pack",
+    href: "/products/refill-ink-starter-pack",
     category: "Print Supply",
     description:
       "Core ink colors for print-heavy work, sample labels, document prep, and everyday refill needs.",
@@ -65,6 +68,7 @@ const topProducts: ProductCardProps[] = [
   },
   {
     name: "USB-C Adapter Kit",
+    href: "/products/usb-c-adapter-kit",
     category: "Computer Part",
     description:
       "Common adapters for connecting laptops, monitors, drives, chargers, and small accessories.",
@@ -76,6 +80,7 @@ const topProducts: ProductCardProps[] = [
   },
   {
     name: "Printable Study Planner",
+    href: "/products/printable-study-planner",
     category: "Digital",
     description:
       "A clean weekly planner designed for students, tutors, and anyone organizing repeat study routines.",

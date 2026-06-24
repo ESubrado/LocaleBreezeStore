@@ -10,6 +10,10 @@ const links = [
   { href: "/products", label: "Products" },
 ];
 
+function isActivePath(pathname: string, href: string) {
+  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+}
+
 export default function Navigation() {
   const pathname = usePathname();
   const navListRef = useRef<HTMLDivElement>(null);
@@ -22,7 +26,10 @@ export default function Navigation() {
 
   const updateActivePill = useCallback(() => {
     const navList = navListRef.current;
-    const activeLink = linkRefs.current[pathname];
+    const activeHref = links.find((link) =>
+      isActivePath(pathname, link.href),
+    )?.href;
+    const activeLink = activeHref ? linkRefs.current[activeHref] : null;
 
     if (!navList || !activeLink) {
       setActivePill((current) => ({ ...current, opacity: 0 }));
@@ -84,7 +91,7 @@ export default function Navigation() {
             }}
           />
           {links.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = isActivePath(pathname, link.href);
 
             return (
               <Link

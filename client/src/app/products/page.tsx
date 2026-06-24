@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getProductCatalogPageData } from "@/api/products";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Products | Locale Breeze Store",
@@ -175,12 +176,18 @@ export default async function Products() {
 
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {products.map((product) => (
-                <ProductCard key={product.name} {...product} />
+                <ProductCard
+                  key={product.id}
+                  {...product}
+                  href={`/products/${product.id}`}
+                />
               ))}
             </div>
           </div>
         </section>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

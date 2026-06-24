@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 export type ProductCardProps = {
@@ -11,6 +12,7 @@ export type ProductCardProps = {
   imagePosition?: string;
   tags: string[];
   compact?: boolean;
+  href?: string;
 };
 
 const productImage = "/locale-breeze-general-store-hero.png";
@@ -25,10 +27,11 @@ export default function ProductCard({
   imagePosition = "center",
   tags,
   compact = false,
+  href,
 }: ProductCardProps) {
   const visibleTags = compact ? tags.slice(0, 2) : tags;
 
-  return (
+  const card = (
     <Card
       role="article"
       className="flex h-full flex-col gap-0 overflow-hidden rounded-lg border-stone-200 bg-white py-0 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -111,5 +114,19 @@ export default function ProductCard({
         </CardFooter>
       </CardContent>
     </Card>
+  );
+
+  if (!href) {
+    return card;
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={`View details for ${name}`}
+      className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#24786b] focus-visible:ring-offset-2"
+    >
+      {card}
+    </Link>
   );
 }

@@ -9,6 +9,7 @@ export type ProductCatalog = {
 };
 
 export type Product = {
+  id: string;
   name: string;
   category: string;
   description: string;
@@ -79,6 +80,7 @@ const catalogs: ProductCatalog[] = [
 
 const products: Product[] = [
   {
+    id: "budget-calculator-workbook",
     name: "Budget Calculator Workbook",
     category: "Digital",
     description:
@@ -90,6 +92,7 @@ const products: Product[] = [
     tags: ["Download", "Printable", "Business"],
   },
   {
+    id: "computer-basics-field-guide",
     name: "Computer Basics Field Guide",
     category: "Print",
     description:
@@ -101,6 +104,7 @@ const products: Product[] = [
     tags: ["Reference", "Beginner", "Tech"],
   },
   {
+    id: "everyday-desk-calculator",
     name: "Everyday Desk Calculator",
     category: "Office",
     description:
@@ -112,6 +116,7 @@ const products: Product[] = [
     tags: ["Desk", "School", "Office"],
   },
   {
+    id: "refill-ink-starter-pack",
     name: "Refill Ink Starter Pack",
     category: "Print Supply",
     description:
@@ -123,6 +128,7 @@ const products: Product[] = [
     tags: ["Ink", "Print", "Refill"],
   },
   {
+    id: "precision-pen-set",
     name: "Precision Pen Set",
     category: "Stationery",
     description:
@@ -134,6 +140,7 @@ const products: Product[] = [
     tags: ["Writing", "Notes", "Daily use"],
   },
   {
+    id: "usb-c-adapter-kit",
     name: "USB-C Adapter Kit",
     category: "Computer Part",
     description:
@@ -145,6 +152,7 @@ const products: Product[] = [
     tags: ["USB-C", "Cable", "Adapter"],
   },
   {
+    id: "keyboard-repair-bits",
     name: "Keyboard Repair Bits",
     category: "Computer Part",
     description:
@@ -156,6 +164,7 @@ const products: Product[] = [
     tags: ["Keyboard", "Repair", "Parts"],
   },
   {
+    id: "printable-study-planner",
     name: "Printable Study Planner",
     category: "Digital",
     description:
@@ -188,6 +197,12 @@ export async function getProductCatalogs(): Promise<ProductCatalog[]> {
 
 export async function getProducts(): Promise<Product[]> {
   return products;
+}
+
+export async function getProductById(
+  id: string,
+): Promise<Product | undefined> {
+  return products.find((product) => product.id === id);
 }
 
 export async function getProductCatalogPageData(): Promise<ProductCatalogPageData> {
