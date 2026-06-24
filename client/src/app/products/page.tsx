@@ -42,7 +42,7 @@ export default async function Products() {
                 {catalogs.map((catalog) => (
                   <a
                     key={catalog.id}
-                    href={`#${catalog.id}`}
+                    href={`#${catalog.slug}`}
                     className="inline-flex min-h-11 items-center rounded-full border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 transition hover:border-[#24786b] hover:text-[#24786b] focus:outline-none focus:ring-2 focus:ring-[#24786b] focus:ring-offset-2"
                   >
                     {catalog.title}
@@ -90,7 +90,7 @@ export default async function Products() {
             {catalogs.map((catalog) => (
               <article
                 key={catalog.id}
-                id={catalog.id}
+                id={catalog.slug}
                 className="grid overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm sm:grid-cols-[0.9fr_1.1fr]"
               >
                 <div className="relative min-h-56 bg-stone-100">

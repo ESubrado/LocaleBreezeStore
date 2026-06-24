@@ -14,7 +14,6 @@ import {
 import {
   getProductById,
   getProductCatalogPageData,
-  getProducts,
   type Product,
 } from "@/api/products";
 import Navigation from "@/components/Navigation";
@@ -49,37 +48,18 @@ function getRelatedProducts(product: Product, products: Product[]) {
     .map(({ product }) => product);
 }
 
-export async function generateStaticParams() {
-  const products = await getProducts();
-
-  return products.map((product) => ({
-    id: product.id,
-  }));
-}
-
-export async function generateMetadata({
-  params,
-}: ProductPageProps): Promise<Metadata> {
-  const { id } = await params;
-  const product = await getProductById(id);
-
-  if (!product) {
-    return {
-      title: "Product not found | Locale Breeze Store",
-    };
-  }
-
-  return {
-    title: `${product.name} | Locale Breeze Store`,
-    description: product.description,
-  };
-}
 
 export default async function ProductItemPage({ params }: ProductPageProps) {
   const { id } = await params;
+  const productId = Number(id);
+
+  if (!Number.isInteger(productId)) {
+    notFound();
+  }
+
   const [{ products }, product] = await Promise.all([
     getProductCatalogPageData(),
-    getProductById(id),
+    getProductById(productId),
   ]);
 
   if (!product) {
@@ -94,6 +74,7 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
       : "Prepared as a download sample";
 
   const details = [
+    { label: "Product ID", value: String(product.id) },
     { label: "Price", value: product.price },
     { label: "Category", value: product.category },
     { label: "Format", value: product.format },

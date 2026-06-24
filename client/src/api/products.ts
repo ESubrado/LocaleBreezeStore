@@ -1,5 +1,6 @@
 export type ProductCatalog = {
-  id: string;
+  id: number;
+  slug: string;
   title: string;
   description: string;
   count: string;
@@ -9,7 +10,8 @@ export type ProductCatalog = {
 };
 
 export type Product = {
-  id: string;
+  id: number;
+  slug: string;
   name: string;
   category: string;
   description: string;
@@ -35,7 +37,8 @@ const catalogImage = "/locale-breeze-general-store-hero.png";
 
 const catalogs: ProductCatalog[] = [
   {
-    id: "digital-print",
+    id: 1,
+    slug: "digital-print",
     title: "Digital and Print",
     description:
       "Downloadable calculators, printable guides, templates, study sheets, and bundled print-ready resources.",
@@ -46,7 +49,8 @@ const catalogs: ProductCatalog[] = [
     examples: ["PDF guides", "Spreadsheets", "Printable planners"],
   },
   {
-    id: "books-study",
+    id: 2,
+    slug: "books-study",
     title: "Books and Study Tools",
     description:
       "Reference books, notebooks, workbooks, calculators, and practical tools for school, office, and home tasks.",
@@ -57,7 +61,8 @@ const catalogs: ProductCatalog[] = [
     examples: ["Books", "Calculators", "Notebooks"],
   },
   {
-    id: "ink-writing",
+    id: 3,
+    slug: "ink-writing",
     title: "Ink and Writing",
     description:
       "Ink refills, printer cartridges, everyday pens, markers, paper, and desk writing supplies.",
@@ -67,7 +72,8 @@ const catalogs: ProductCatalog[] = [
     examples: ["Ink", "Pens", "Printer supplies"],
   },
   {
-    id: "computer-parts",
+    id: 4,
+    slug: "computer-parts",
     title: "Computer Parts",
     description:
       "Common computer add-ons and replacements such as adapters, cables, keyboard parts, fans, and small components.",
@@ -80,7 +86,8 @@ const catalogs: ProductCatalog[] = [
 
 const products: Product[] = [
   {
-    id: "budget-calculator-workbook",
+    id: 1,
+    slug: "budget-calculator-workbook",
     name: "Budget Calculator Workbook",
     category: "Digital",
     description:
@@ -92,7 +99,8 @@ const products: Product[] = [
     tags: ["Download", "Printable", "Business"],
   },
   {
-    id: "computer-basics-field-guide",
+    id: 2,
+    slug: "computer-basics-field-guide",
     name: "Computer Basics Field Guide",
     category: "Print",
     description:
@@ -104,7 +112,8 @@ const products: Product[] = [
     tags: ["Reference", "Beginner", "Tech"],
   },
   {
-    id: "everyday-desk-calculator",
+    id: 3,
+    slug: "everyday-desk-calculator",
     name: "Everyday Desk Calculator",
     category: "Office",
     description:
@@ -116,7 +125,8 @@ const products: Product[] = [
     tags: ["Desk", "School", "Office"],
   },
   {
-    id: "refill-ink-starter-pack",
+    id: 4,
+    slug: "refill-ink-starter-pack",
     name: "Refill Ink Starter Pack",
     category: "Print Supply",
     description:
@@ -128,7 +138,8 @@ const products: Product[] = [
     tags: ["Ink", "Print", "Refill"],
   },
   {
-    id: "precision-pen-set",
+    id: 5,
+    slug: "precision-pen-set",
     name: "Precision Pen Set",
     category: "Stationery",
     description:
@@ -140,7 +151,8 @@ const products: Product[] = [
     tags: ["Writing", "Notes", "Daily use"],
   },
   {
-    id: "usb-c-adapter-kit",
+    id: 6,
+    slug: "usb-c-adapter-kit",
     name: "USB-C Adapter Kit",
     category: "Computer Part",
     description:
@@ -152,7 +164,8 @@ const products: Product[] = [
     tags: ["USB-C", "Cable", "Adapter"],
   },
   {
-    id: "keyboard-repair-bits",
+    id: 7,
+    slug: "keyboard-repair-bits",
     name: "Keyboard Repair Bits",
     category: "Computer Part",
     description:
@@ -164,7 +177,8 @@ const products: Product[] = [
     tags: ["Keyboard", "Repair", "Parts"],
   },
   {
-    id: "printable-study-planner",
+    id: 8,
+    slug: "printable-study-planner",
     name: "Printable Study Planner",
     category: "Digital",
     description:
@@ -199,9 +213,7 @@ export async function getProducts(): Promise<Product[]> {
   return products;
 }
 
-export async function getProductById(
-  id: string,
-): Promise<Product | undefined> {
+export async function getProductById(id: number): Promise<Product | undefined> {
   return products.find((product) => product.id === id);
 }
 
