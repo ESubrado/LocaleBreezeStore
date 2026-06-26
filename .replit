@@ -1,0 +1,26 @@
+language = "javascript"
+modules = ["nodejs-20"]
+entrypoint = "client/src/app/page.tsx"
+run = "cd client && corepack enable && pnpm dev -- --hostname 0.0.0.0"
+onBoot = "cd client && corepack enable && pnpm install --frozen-lockfile"
+hidden = ["client/node_modules", "client/.next"]
+
+[gitHubImport]
+requiredFiles = [".replit", "client/package.json", "client/pnpm-lock.yaml", "client/next.config.ts"]
+
+[packager]
+language = "nodejs"
+ignoredPaths = ["mobile", ".git", "client/node_modules", "client/.next"]
+
+[packager.features]
+guessImports = false
+packageSearch = false
+enabledForHosting = false
+
+[deployment]
+build = "cd client && corepack enable && pnpm install --frozen-lockfile && pnpm build"
+run = "cd client && corepack enable && pnpm start -- --hostname 0.0.0.0"
+
+[[ports]]
+localPort = 3000
+externalPort = 80

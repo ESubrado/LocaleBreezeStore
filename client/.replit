@@ -1,12 +1,12 @@
 language = "javascript"
 modules = ["nodejs-20"]
 entrypoint = "src/app/page.tsx"
-run = "npm run dev -- --hostname 0.0.0.0"
-onBoot = "npm install"
+run = "corepack enable && pnpm dev -- --hostname 0.0.0.0"
+onBoot = "corepack enable && pnpm install --frozen-lockfile"
 hidden = ["node_modules", ".next"]
 
 [gitHubImport]
-requiredFiles = [".replit", "package.json"]
+requiredFiles = [".replit", "package.json", "pnpm-lock.yaml", "next.config.ts"]
 
 [packager]
 language = "nodejs"
@@ -18,8 +18,8 @@ packageSearch = false
 enabledForHosting = false
 
 [deployment]
-build = "npm ci && npm run build"
-run = "npm run start -- --hostname 0.0.0.0"
+build = "corepack enable && pnpm install --frozen-lockfile && pnpm build"
+run = "corepack enable && pnpm start -- --hostname 0.0.0.0"
 
 [[ports]]
 localPort = 3000
