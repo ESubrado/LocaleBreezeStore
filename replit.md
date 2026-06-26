@@ -2,8 +2,10 @@
 
 ## Project Structure
 
+- This is an imported GitHub repository, not a new Replit-generated app.
 - The web application is a Next.js app located in `client/`.
 - The mobile application is an Expo app located in `mobile/`.
+- Treat the repository root as a container only.
 - Do not create web app files at the repository root.
 - Do not create root-level `package.json`, `src/`, `app/`, `pages/`, `components/`, `.next/`, or `node_modules/` for the web app.
 - Put web source changes under `client/src/`.

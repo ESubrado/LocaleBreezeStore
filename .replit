@@ -1,3 +1,4 @@
+language = "javascript"
 modules = ["nodejs-20"]
 entrypoint = "client/src/app/page.tsx"
 run = "cd client && npm run dev -- --hostname 0.0.0.0"
