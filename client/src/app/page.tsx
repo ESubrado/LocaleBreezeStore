@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import SupabaseDataDebug from "@/components/SupabaseDataDebug";
 import TopProductsCarousel from "@/components/TopProductsCarousel";
 import { getFeaturedProducts } from "@/lib/products";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,13 @@ export default async function Home() {
 
   return (
     <>
+      {process.env.NEXT_PUBLIC_SUPABASE_DEBUG === "true" && (
+        <SupabaseDataDebug
+          data={{ topProducts }}
+          label="home-page"
+          tables={[{ label: "Top products", rows: topProducts }]}
+        />
+      )}
       <Navigation />
 
       <main className="bg-[#f7faf7] text-stone-950">

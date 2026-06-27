@@ -4,6 +4,7 @@ import { getProductCatalogPageData } from "@/lib/products";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
+import SupabaseDataDebug from "@/components/SupabaseDataDebug";
 
 export const metadata: Metadata = {
   title: "Products | Locale Breeze Store",
@@ -19,6 +20,16 @@ export default async function Products() {
 
   return (
     <>
+      {process.env.NEXT_PUBLIC_SUPABASE_DEBUG === "true" && (
+        <SupabaseDataDebug
+          data={{ catalogs, products, stats }}
+          label="products-page"
+          tables={[
+            { label: "Catalogs", rows: catalogs },
+            { label: "Products", rows: products },
+          ]}
+        />
+      )}
       <Navigation />
 
       <main className="bg-[#f7faf7] text-stone-950">
