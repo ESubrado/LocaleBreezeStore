@@ -1,18 +1,31 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+let cachedSupabase: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.",
-  );
+export function getSupabaseClient() {
+  if (cachedSupabase) {
+    return cachedSupabase;
+  }
+
+  const supabaseUrl =
+    process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_ANON_KEY, or the NEXT_PUBLIC_SUPABASE_* equivalents, in your environment.",
+    );
+  }
+
+  // The anon/publishable key is safe to use here because Supabase row level
+  // security decides which rows that key is allowed to read.
+  cachedSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+    },
+  });
+
+  return cachedSupabase;
 }
-
-// The anon/publishable key is safe to use in app code because Supabase row
-// level security decides which rows that key is allowed to read.
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-  },
-});

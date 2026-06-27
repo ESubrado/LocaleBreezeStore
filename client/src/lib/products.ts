@@ -1,6 +1,6 @@
 import "server-only";
 
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 
 type Json =
   | string
@@ -224,6 +224,8 @@ function raiseSupabaseError(tableName: string, message: string): never {
 }
 
 export async function getProductCatalogs(): Promise<ProductCatalog[]> {
+  const supabase = getSupabaseClient();
+
   const { data, error } = await supabase
     .from("catalogs")
     .select(catalogColumns)
@@ -242,6 +244,8 @@ export async function getProducts({
   featuredOnly = false,
   limit,
 }: ProductQueryOptions = {}): Promise<Product[]> {
+  const supabase = getSupabaseClient();
+
   // Start with all public products, then optionally add filters. Building the
   // query this way keeps every product list consistent about active rows/order.
   let query = supabase
@@ -283,6 +287,8 @@ export async function getFeaturedProducts(limit = 5): Promise<Product[]> {
 export async function getProductById(
   id: number,
 ): Promise<Product | undefined> {
+  const supabase = getSupabaseClient();
+
   const { data, error } = await supabase
     .from("products")
     .select(productColumns)
