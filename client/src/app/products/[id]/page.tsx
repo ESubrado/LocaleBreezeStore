@@ -15,7 +15,7 @@ import {
   getProductById,
   getProductCatalogPageData,
   type Product,
-} from "@/localdata/products";
+} from "@/lib/products";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
