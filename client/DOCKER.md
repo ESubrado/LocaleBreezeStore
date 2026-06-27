@@ -1,5 +1,17 @@
 # Docker
 
+Start the client with Docker Compose from the `client` directory:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
 Build the Next.js client image from the `client` directory:
 
 ```bash

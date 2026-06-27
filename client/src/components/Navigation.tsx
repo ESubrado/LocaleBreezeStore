@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ExclusiveLoginDropdown from "@/components/ExclusiveLoginDropdown";
+import AdminLoginDropdown from "@/components/AdminLoginDropdown";
 
 const links = [
   { href: "/", label: "Home" },
@@ -111,7 +111,7 @@ export default function Navigation() {
               </Link>
             );
           })}
-          <ExclusiveLoginDropdown />
+          <AdminLoginDropdown />
         </div>
       </div>
     </nav>

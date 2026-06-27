@@ -2,35 +2,36 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  exclusiveAuthChangedEvent,
-  exclusiveDemoCredential,
-  getExclusiveSession,
-  signInExclusiveCustomer,
-  signOutExclusiveCustomer,
-  type ExclusiveSession,
-} from "@/lib/exclusiveAuth";
+  adminAuthChangedEvent,
+  adminDemoCredential,
+  getAdminSession,
+  signInAdmin,
+  signOutAdmin,
+  type AdminSession,
+} from "@/lib/adminAuth";
 
-export default function ExclusiveLoginDropdown() {
+export default function AdminLoginDropdown() {
   const pathname = usePathname();
+  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [email, setEmail] = useState(exclusiveDemoCredential.email);
+  const [email, setEmail] = useState(adminDemoCredential.email);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [session, setSession] = useState<ExclusiveSession | null>(null);
+  const [session, setSession] = useState<AdminSession | null>(null);
 
   useEffect(() => {
-    const syncSession = () => setSession(getExclusiveSession());
+    const syncSession = () => setSession(getAdminSession());
 
     syncSession();
     window.addEventListener("storage", syncSession);
-    window.addEventListener(exclusiveAuthChangedEvent, syncSession);
+    window.addEventListener(adminAuthChangedEvent, syncSession);
 
     return () => {
       window.removeEventListener("storage", syncSession);
-      window.removeEventListener(exclusiveAuthChangedEvent, syncSession);
+      window.removeEventListener(adminAuthChangedEvent, syncSession);
     };
   }, []);
 
@@ -62,7 +63,7 @@ export default function ExclusiveLoginDropdown() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const result = signInExclusiveCustomer(email, password);
+    const result = signInAdmin(email, password);
 
     if (result.error) {
       setError(result.error);
@@ -73,31 +74,36 @@ export default function ExclusiveLoginDropdown() {
     setError("");
     setPassword("");
     setIsOpen(false);
+    router.push("/admin");
   };
 
   const handleSignOut = () => {
-    signOutExclusiveCustomer();
+    signOutAdmin();
     setSession(null);
     setError("");
     setPassword("");
     setIsOpen(false);
+
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+      router.push("/");
+    }
   };
 
   if (session) {
-    const isExclusiveActive = pathname === "/exclusive";
+    const isAdminActive = pathname === "/admin" || pathname.startsWith("/admin/");
 
     return (
       <>
         <Link
-          href="/exclusive"
-          aria-current={isExclusiveActive ? "page" : undefined}
+          href="/admin"
+          aria-current={isAdminActive ? "page" : undefined}
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            isExclusiveActive
+            isAdminActive
               ? "bg-stone-950 text-white"
               : "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
           }`}
         >
-          Exclusive
+          Admin
         </Link>
         <button
           type="button"
@@ -128,35 +134,35 @@ export default function ExclusiveLoginDropdown() {
       {isOpen ? (
         <div
           role="dialog"
-          aria-label="Exclusive customer login"
+          aria-label="Admin login"
           className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-lg border border-stone-200 bg-white p-5 text-left shadow-xl"
         >
           <p className="text-xs font-semibold uppercase tracking-normal text-[#24786b]">
-            Exclusive login
+            Admin login
           </p>
           <h2 className="mt-2 text-lg font-bold text-stone-950">
-            Sign in for customer-only access.
+            Sign in to open the admin page.
           </h2>
           <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-[#fbfcf8] p-3 text-xs leading-5 text-stone-700">
             <span className="block font-semibold text-stone-950">
               Demo credential
             </span>
-            <span className="mt-1 block">Email: {exclusiveDemoCredential.email}</span>
+            <span className="mt-1 block">Email: {adminDemoCredential.email}</span>
             <span className="block">
-              Password: {exclusiveDemoCredential.password}
+              Password: {adminDemoCredential.password}
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             <div>
               <label
-                htmlFor="exclusive-nav-email"
+                htmlFor="admin-nav-email"
                 className="text-sm font-semibold text-stone-800"
               >
                 Email
               </label>
               <input
-                id="exclusive-nav-email"
+                id="admin-nav-email"
                 name="email"
                 type="email"
                 autoComplete="email"
@@ -169,13 +175,13 @@ export default function ExclusiveLoginDropdown() {
 
             <div>
               <label
-                htmlFor="exclusive-nav-password"
+                htmlFor="admin-nav-password"
                 className="text-sm font-semibold text-stone-800"
               >
                 Password
               </label>
               <input
-                id="exclusive-nav-password"
+                id="admin-nav-password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
