@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getProductCatalogPageData } from "@/localdata/products";
+import { getProductCatalogPageData } from "@/lib/products";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description:
     "Browse sample catalogs and products for digital downloads, print materials, office supplies, inks, calculators, computer parts, and everyday essentials.",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function Products() {
   const { catalogImage, catalogs, products, stats } =

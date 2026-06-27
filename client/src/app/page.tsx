@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import TopProductsCarousel from "@/components/TopProductsCarousel";
-import type { ProductCardProps } from "@/components/ProductCard";
+import { getFeaturedProducts } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,70 +29,14 @@ const storePillars = [
   },
 ];
 
-const topProducts: ProductCardProps[] = [
-  {
-    name: "Budget Calculator Workbook",
-    href: "/products/1",
-    category: "Digital",
-    description:
-      "A spreadsheet-style calculator bundle for monthly budgets, simple forecasting, and printable summaries.",
-    format: "XLSX + PDF",
-    price: "$12.00",
-    imageAlt: "Calculator and notebooks representing a budget workbook",
-    imagePosition: "72% 65%",
-    tags: ["Download", "Printable", "Business"],
-  },
-  {
-    name: "Computer Basics Field Guide",
-    href: "/products/2",
-    category: "Print",
-    description:
-      "A compact handbook covering everyday ports, cables, adapters, storage, and simple troubleshooting.",
-    format: "Booklet",
-    price: "$9.50",
-    imageAlt: "Books and computer parts representing a computer basics guide",
-    imagePosition: "78% 58%",
-    tags: ["Reference", "Beginner", "Tech"],
-  },
-  {
-    name: "Refill Ink Starter Pack",
-    href: "/products/4",
-    category: "Print Supply",
-    description:
-      "Core ink colors for print-heavy work, sample labels, document prep, and everyday refill needs.",
-    format: "Physical",
-    price: "$22.00",
-    imageAlt: "Ink bottles and printer cartridges on a store counter",
-    imagePosition: "62% 79%",
-    tags: ["Ink", "Print", "Refill"],
-  },
-  {
-    name: "USB-C Adapter Kit",
-    href: "/products/6",
-    category: "Computer Part",
-    description:
-      "Common adapters for connecting laptops, monitors, drives, chargers, and small accessories.",
-    format: "Physical",
-    price: "$16.00",
-    imageAlt: "USB cables, adapters, and computer connectors",
-    imagePosition: "83% 88%",
-    tags: ["USB-C", "Cable", "Adapter"],
-  },
-  {
-    name: "Printable Study Planner",
-    href: "/products/8",
-    category: "Digital",
-    description:
-      "A clean weekly planner designed for students, tutors, and anyone organizing repeat study routines.",
-    format: "PDF",
-    price: "$5.00",
-    imageAlt: "Notebooks and paper goods representing a printable study planner",
-    imagePosition: "63% 55%",
-    tags: ["Download", "Planner", "School"],
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const topProducts = (await getFeaturedProducts()).map((product) => ({
+    ...product,
+    href: `/products/${product.id}`,
+  }));
+
   return (
     <>
       <Navigation />
