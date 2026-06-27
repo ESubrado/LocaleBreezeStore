@@ -1,105 +1,90 @@
-export const adminAuthChangedEvent = "locale-breeze-admin-auth-changed";
+"use client";
 
-export const adminDemoCredential = {
-  email: "admin@localebreeze.test",
-  password: "BreezeAdmin2026",
-};
-
-export const adminTokenStorageKey = "locale-breeze-admin-token";
-const adminSessionStorageKey = "locale-breeze-admin-session";
+import type { Session } from "@supabase/supabase-js";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 export type AdminSession = {
   email: string;
-  loggedInAt: string;
-  role: "admin";
-  token: string;
+  expiresAt?: string;
+  loggedInAt?: string;
+  role: string;
+  userId: string;
 };
 
-const hasBrowserStorage = () => typeof window !== "undefined";
-
-const publishAuthChange = () => {
-  if (hasBrowserStorage()) {
-    window.dispatchEvent(new Event(adminAuthChangedEvent));
-  }
-};
-
-export function getAdminSession(): AdminSession | null {
-  if (!hasBrowserStorage()) {
+function mapSupabaseSession(session: Session | null): AdminSession | null {
+  if (!session?.user) {
     return null;
   }
 
-  const token = localStorage.getItem(adminTokenStorageKey);
-  const savedSession = localStorage.getItem(adminSessionStorageKey);
+  const role =
+    typeof session.user.app_metadata.role === "string"
+      ? session.user.app_metadata.role
+      : "authenticated";
 
-  if (!token || !savedSession) {
-    return null;
-  }
-
-  try {
-    const session = JSON.parse(savedSession) as Omit<AdminSession, "token">;
-
-    return {
-      ...session,
-      token,
-    };
-  } catch {
-    localStorage.removeItem(adminTokenStorageKey);
-    localStorage.removeItem(adminSessionStorageKey);
-    return null;
-  }
+  return {
+    email: session.user.email ?? "Unknown email",
+    expiresAt: session.expires_at
+      ? new Date(session.expires_at * 1000).toISOString()
+      : undefined,
+    loggedInAt: session.user.last_sign_in_at ?? session.user.created_at,
+    role,
+    userId: session.user.id,
+  };
 }
 
-export function signInAdmin(email: string, password: string) {
-  if (!hasBrowserStorage()) {
+export async function getAdminSession() {
+  const supabase = createBrowserSupabaseClient();
+
+  // Client-side getSession is only for showing the nav state. The /admin page
+  // does its real protection on the server, where users cannot spoof it.
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapSupabaseSession(data.session);
+}
+
+export function onAdminAuthStateChange(
+  callback: (session: AdminSession | null) => void,
+) {
+  const supabase = createBrowserSupabaseClient();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    callback(mapSupabaseSession(session));
+  });
+
+  return () => subscription.unsubscribe();
+}
+
+export async function signInAdmin(email: string, password: string) {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
+
+  if (error) {
     return {
-      error: "Browser storage is not available.",
+      error: error.message,
       session: null,
     };
   }
-
-  const normalizedEmail = email.trim().toLowerCase();
-  const matchesDemoCredential =
-    normalizedEmail === adminDemoCredential.email &&
-    password === adminDemoCredential.password;
-
-  if (!matchesDemoCredential) {
-    return {
-      error: "The email or password does not match the demo credential.",
-      session: null,
-    };
-  }
-
-  const token = `demo-admin-token-${Date.now()}`;
-  const session: AdminSession = {
-    email: normalizedEmail,
-    loggedInAt: new Date().toISOString(),
-    role: "admin",
-    token,
-  };
-
-  localStorage.setItem(adminTokenStorageKey, token);
-  localStorage.setItem(
-    adminSessionStorageKey,
-    JSON.stringify({
-      email: session.email,
-      loggedInAt: session.loggedInAt,
-      role: session.role,
-    }),
-  );
-  publishAuthChange();
 
   return {
     error: "",
-    session,
+    session: mapSupabaseSession(data.session),
   };
 }
 
-export function signOutAdmin() {
-  if (!hasBrowserStorage()) {
-    return;
-  }
+export async function signOutAdmin() {
+  const supabase = createBrowserSupabaseClient();
+  const { error } = await supabase.auth.signOut();
 
-  localStorage.removeItem(adminTokenStorageKey);
-  localStorage.removeItem(adminSessionStorageKey);
-  publishAuthChange();
+  return {
+    error: error?.message ?? "",
+  };
 }

@@ -4,9 +4,8 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  adminAuthChangedEvent,
-  adminDemoCredential,
   getAdminSession,
+  onAdminAuthStateChange,
   signInAdmin,
   signOutAdmin,
   type AdminSession,
@@ -16,22 +15,39 @@ export default function AdminLoginDropdown() {
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [email, setEmail] = useState(adminDemoCredential.email);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [session, setSession] = useState<AdminSession | null>(null);
 
   useEffect(() => {
-    const syncSession = () => setSession(getAdminSession());
+    let isMounted = true;
 
-    syncSession();
-    window.addEventListener("storage", syncSession);
-    window.addEventListener(adminAuthChangedEvent, syncSession);
+    getAdminSession()
+      .then((currentSession) => {
+        if (isMounted) {
+          setSession(currentSession);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setSession(null);
+        }
+      });
+
+    // Supabase emits auth changes after sign-in, sign-out, refresh, and tab
+    // sync events, so the nav stays aligned with the cookie-backed session.
+    const unsubscribe = onAdminAuthStateChange((currentSession) => {
+      if (isMounted) {
+        setSession(currentSession);
+      }
+    });
 
     return () => {
-      window.removeEventListener("storage", syncSession);
-      window.removeEventListener(adminAuthChangedEvent, syncSession);
+      isMounted = false;
+      unsubscribe();
     };
   }, []);
 
@@ -60,25 +76,36 @@ export default function AdminLoginDropdown() {
     };
   }, []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError("");
 
-    const result = signInAdmin(email, password);
+    const resolvedResult = await signInAdmin(email, password);
+
+    if (resolvedResult.error) {
+      setError(resolvedResult.error);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setSession(resolvedResult.session);
+    setError("");
+    setPassword("");
+    setIsOpen(false);
+    setIsSubmitting(false);
+    router.push("/admin");
+    router.refresh();
+  };
+
+  const handleSignOut = async () => {
+    const result = await signOutAdmin();
 
     if (result.error) {
       setError(result.error);
       return;
     }
 
-    setSession(result.session);
-    setError("");
-    setPassword("");
-    setIsOpen(false);
-    router.push("/admin");
-  };
-
-  const handleSignOut = () => {
-    signOutAdmin();
     setSession(null);
     setError("");
     setPassword("");
@@ -87,6 +114,8 @@ export default function AdminLoginDropdown() {
     if (pathname === "/admin" || pathname.startsWith("/admin/")) {
       router.push("/");
     }
+
+    router.refresh();
   };
 
   if (session) {
@@ -141,17 +170,8 @@ export default function AdminLoginDropdown() {
             Admin login
           </p>
           <h2 className="mt-2 text-lg font-bold text-stone-950">
-            Sign in to open the admin page.
+            Sign in with your Supabase admin account.
           </h2>
-          <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-[#fbfcf8] p-3 text-xs leading-5 text-stone-700">
-            <span className="block font-semibold text-stone-950">
-              Demo credential
-            </span>
-            <span className="mt-1 block">Email: {adminDemoCredential.email}</span>
-            <span className="block">
-              Password: {adminDemoCredential.password}
-            </span>
-          </div>
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             <div>
@@ -169,6 +189,7 @@ export default function AdminLoginDropdown() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="mt-2 min-h-11 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-[#24786b] focus:ring-2 focus:ring-[#24786b]/20"
+                placeholder="admin@example.com"
                 required
               />
             </div>
@@ -188,7 +209,7 @@ export default function AdminLoginDropdown() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="mt-2 min-h-11 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-[#24786b] focus:ring-2 focus:ring-[#24786b]/20"
-                placeholder="Enter demo password"
+                placeholder="Enter password"
                 required
               />
             </div>
@@ -201,9 +222,10 @@ export default function AdminLoginDropdown() {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-950 focus:ring-offset-2"
             >
-              Login
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>

@@ -1,66 +1,20 @@
-"use client";
+type AdminPageSession = {
+  email: string;
+  expiresAt?: string;
+  loggedInAt?: string;
+  role: string;
+  userId: string;
+};
 
-import { useEffect, useState } from "react";
-import {
-  adminAuthChangedEvent,
-  getAdminSession,
-  type AdminSession,
-} from "@/lib/adminAuth";
+function formatSessionDate(value?: string) {
+  return value ? new Date(value).toLocaleString() : "Unavailable";
+}
 
-export default function AdminAccessGate() {
-  const [isReady, setIsReady] = useState(false);
-  const [session, setSession] = useState<AdminSession | null>(null);
-
-  useEffect(() => {
-    const syncSession = () => {
-      setSession(getAdminSession());
-      setIsReady(true);
-    };
-
-    syncSession();
-    window.addEventListener("storage", syncSession);
-    window.addEventListener(adminAuthChangedEvent, syncSession);
-
-    return () => {
-      window.removeEventListener("storage", syncSession);
-      window.removeEventListener(adminAuthChangedEvent, syncSession);
-    };
-  }, []);
-
-  if (!isReady) {
-    return (
-      <section className="mx-auto min-h-[calc(100svh-4rem)] w-full max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
-        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">
-            Checking access
-          </p>
-          <p className="mt-3 text-sm text-stone-600">
-            Loading your admin session.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  if (!session) {
-    return (
-      <section className="mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-7xl place-items-center px-5 py-12 sm:px-8 lg:py-16">
-        <div className="w-full max-w-xl rounded-lg border border-stone-200 bg-white p-6 text-center shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-normal text-[#b15a2b]">
-            Login required
-          </p>
-          <h1 className="mt-3 text-3xl font-bold text-stone-950">
-            Admin access is locked.
-          </h1>
-          <p className="mt-4 text-sm leading-6 text-stone-600">
-            Use the Login link in the navigation to sign in with the demo
-            credential. The admin page appears after a local session is stored.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
+export default function AdminAccessGate({
+  session,
+}: {
+  session: AdminPageSession;
+}) {
   return (
     <section className="mx-auto min-h-[calc(100svh-4rem)] w-full max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
@@ -91,7 +45,7 @@ export default function AdminAccessGate() {
                 Logged in
               </span>
               <span className="mt-1 block text-sm text-stone-600">
-                {new Date(session.loggedInAt).toLocaleString()}
+                {formatSessionDate(session.loggedInAt)}
               </span>
             </div>
             <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
@@ -104,10 +58,18 @@ export default function AdminAccessGate() {
             </div>
             <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
               <span className="block text-sm font-semibold text-stone-950">
-                Demo token
+                User ID
               </span>
               <span className="mt-1 block break-all text-xs leading-5 text-stone-600">
-                {session.token}
+                {session.userId}
+              </span>
+            </div>
+            <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
+              <span className="block text-sm font-semibold text-stone-950">
+                Session expires
+              </span>
+              <span className="mt-1 block text-sm text-stone-600">
+                {formatSessionDate(session.expiresAt)}
               </span>
             </div>
           </div>
