@@ -24,7 +24,10 @@ kept in the app source.
 - Do not put a `service_role` key in a `NEXT_PUBLIC_*` environment variable.
 - The read policies in `schema.sql` allow anonymous visitors to read only rows
   where `is_active = true`.
-- Product `image_url` values point at local assets in
-  `client/public/product-images`, which Next serves from `/product-images/...`.
+- Product `image_urls` values store ordered filenames such as `1.png`,
+  `2.png`, and so on. The app combines those filenames with each product
+  `slug` to serve files from `client/public/product-images/<slug>/`.
+  The first filename is also stored as `image_url` for list defaults and
+  backward-compatible reads.
 - Inserts and updates should be done through the Supabase dashboard, SQL Editor,
   a protected admin route, or a server-only script with a secret key.

@@ -9,6 +9,7 @@ export type ProductCardProps = {
   format: string;
   price: string;
   imageUrl?: string;
+  imageUrls?: string[];
   imageAlt: string;
   imagePosition?: string;
   tags: string[];
@@ -24,7 +25,8 @@ export default function ProductCard({
   description,
   format,
   price,
-  imageUrl = fallbackProductImage,
+  imageUrl,
+  imageUrls,
   imageAlt,
   imagePosition = "center",
   tags,
@@ -32,6 +34,7 @@ export default function ProductCard({
   href,
 }: ProductCardProps) {
   const visibleTags = compact ? tags.slice(0, 2) : tags;
+  const defaultImageUrl = imageUrls?.[0] ?? imageUrl ?? fallbackProductImage;
 
   const card = (
     <Card
@@ -44,7 +47,7 @@ export default function ProductCard({
         }`}
       >
         <Image
-          src={imageUrl}
+          src={defaultImageUrl}
           alt={imageAlt}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

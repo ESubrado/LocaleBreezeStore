@@ -20,6 +20,13 @@ import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 type ProductPageProps = {
   params: Promise<{
@@ -48,7 +55,6 @@ function getRelatedProducts(product: Product, products: Product[]) {
     .map(({ product }) => product);
 }
 
-
 export default async function ProductItemPage({ params }: ProductPageProps) {
   const { id } = await params;
   const productId = Number(id);
@@ -67,6 +73,10 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
   }
 
   const relatedProducts = getRelatedProducts(product, products);
+  const productImages =
+    product.imageUrls.length > 0
+      ? product.imageUrls
+      : [product.imageUrl || fallbackProductImage];
   const FormatIcon = product.format === "Physical" ? PackageCheck : FileText;
   const fulfillmentText =
     product.format === "Physical"
@@ -142,16 +152,34 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
               </div>
             </div>
 
-            <div className="relative min-h-80 overflow-hidden rounded-lg border border-stone-200 bg-stone-100 shadow-sm sm:min-h-[31rem]">
-              <Image
-                src={product.imageUrl || fallbackProductImage}
-                alt={product.imageAlt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-                style={{ objectPosition: product.imagePosition ?? "center" }}
-              />
+            <div className="relative overflow-hidden rounded-lg border border-stone-200 bg-stone-100 shadow-sm">
+              <Carousel aria-label={`${product.name} images`}>
+                <CarouselContent className="ml-0">
+                  {productImages.map((imageUrl, index) => (
+                    <CarouselItem key={imageUrl} className="basis-full pl-0">
+                      <div className="relative min-h-80 bg-stone-100 sm:min-h-[31rem]">
+                        <Image
+                          src={imageUrl}
+                          alt={
+                            index === 0
+                              ? product.imageAlt
+                              : `${product.imageAlt} ${index + 1}`
+                          }
+                          fill
+                          priority={index === 0}
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-cover"
+                          style={{
+                            objectPosition: product.imagePosition ?? "center",
+                          }}
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-4 size-10 border-stone-200 bg-white/90 text-stone-950 shadow-sm backdrop-blur hover:border-[#24786b] hover:text-[#24786b]" />
+                <CarouselNext className="right-4 size-10 border-stone-200 bg-white/90 text-stone-950 shadow-sm backdrop-blur hover:border-[#24786b] hover:text-[#24786b]" />
+              </Carousel>
               <div className="absolute bottom-4 left-4 rounded-lg bg-white/92 px-4 py-3 shadow-sm backdrop-blur">
                 <span className="block text-xs font-semibold uppercase tracking-normal text-stone-500">
                   Sample price

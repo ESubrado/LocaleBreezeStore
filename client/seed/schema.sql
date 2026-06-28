@@ -30,6 +30,7 @@ create table if not exists public.products (
   price_amount numeric(10, 2) not null check (price_amount >= 0),
   currency varchar(3) not null default 'USD',
   image_url text not null default '/locale-breeze-general-store-hero.png',
+  image_urls jsonb not null default '[]'::jsonb,
   image_alt text not null,
   image_position varchar(40) default 'center',
   tags jsonb not null default '[]'::jsonb,
@@ -45,6 +46,9 @@ create table if not exists public.products (
 
 alter table public.products
   add column if not exists image_url text not null default '/locale-breeze-general-store-hero.png';
+
+alter table public.products
+  add column if not exists image_urls jsonb not null default '[]'::jsonb;
 
 -- These indexes match the app's most common reads:
 -- active rows ordered for catalog pages, and featured rows for the homepage.

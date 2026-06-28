@@ -33,7 +33,8 @@ type ProductRow = {
   fulfillment_type: string;
   price_amount: number | string;
   currency: string;
-  image_url: string | null;
+  image_url?: string | null;
+  image_urls?: Json | null;
   image_alt: string;
   image_position: string | null;
   tags: Json | null;
@@ -66,6 +67,7 @@ export type Product = {
   fulfillmentType: string;
   price: string;
   imageUrl: string;
+  imageUrls: string[];
   imageAlt: string;
   imagePosition?: string;
   tags: string[];
@@ -92,6 +94,7 @@ type ProductQueryOptions = {
 };
 
 const catalogImage = "/locale-breeze-general-store-hero.png";
+const productImageCount = 8;
 
 const catalogColumns = `
   id,
@@ -117,6 +120,50 @@ const productColumns = `
   price_amount,
   currency,
   image_url,
+  image_urls,
+  image_alt,
+  image_position,
+  tags,
+  stock_quantity,
+  is_featured,
+  is_sample,
+  catalog_id,
+  display_order
+`;
+
+const legacyProductColumns = `
+  id,
+  slug,
+  sku,
+  name,
+  category,
+  description,
+  format,
+  fulfillment_type,
+  price_amount,
+  currency,
+  image_url,
+  image_alt,
+  image_position,
+  tags,
+  stock_quantity,
+  is_featured,
+  is_sample,
+  catalog_id,
+  display_order
+`;
+
+const baseProductColumns = `
+  id,
+  slug,
+  sku,
+  name,
+  category,
+  description,
+  format,
+  fulfillment_type,
+  price_amount,
+  currency,
   image_alt,
   image_position,
   tags,
@@ -146,6 +193,35 @@ function toStringArray(value: Json | null | undefined): string[] {
   } catch {
     return [value];
   }
+}
+
+function isAbsoluteImageUrl(value: string) {
+  return value.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(value);
+}
+
+function resolveProductImageUrl(slug: string, imageUrl: string) {
+  const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
+
+  if (isAbsoluteImageUrl(imageUrl)) {
+    return imageUrl;
+  }
+
+  return `/product-images/${slug}/${normalizedImageUrl}`;
+}
+
+function getLocalProductImageUrls(slug: string) {
+  return Array.from(
+    { length: productImageCount },
+    (_, index) => resolveProductImageUrl(slug, `${index + 1}.png`),
+  );
+}
+
+function isMissingProductImageUrlsColumn(message: string) {
+  return message.includes("image_urls");
+}
+
+function isMissingProductImageUrlColumn(message: string) {
+  return message.includes("image_url");
 }
 
 function formatCatalogCount(sampleItemCount: number | null) {
@@ -188,6 +264,17 @@ function mapCatalogRow(row: CatalogRow): ProductCatalog {
 }
 
 function mapProductRow(row: ProductRow): Product {
+  const imageUrls = toStringArray(row.image_urls).map((imageUrl) =>
+    resolveProductImageUrl(row.slug, imageUrl),
+  );
+  const resolvedImageUrls =
+    imageUrls.length > 0 ? imageUrls : getLocalProductImageUrls(row.slug);
+  const imageUrl =
+    resolvedImageUrls[0] ??
+    (row.image_url
+      ? resolveProductImageUrl(row.slug, row.image_url)
+      : catalogImage);
+
   return {
     id: row.id,
     slug: row.slug,
@@ -198,7 +285,8 @@ function mapProductRow(row: ProductRow): Product {
     format: row.format,
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
-    imageUrl: row.image_url || catalogImage,
+    imageUrl,
+    imageUrls: resolvedImageUrls,
     imageAlt: row.image_alt,
     imagePosition: row.image_position ?? undefined,
     tags: toStringArray(row.tags),
@@ -267,7 +355,51 @@ export async function getProducts({
     query = query.limit(limit);
   }
 
-  const { data, error } = await query;
+  const productResult = await query;
+  let data: unknown = productResult.data;
+  let error: { message: string } | null = productResult.error;
+
+  if (error && isMissingProductImageUrlsColumn(error.message)) {
+    let legacyQuery = supabase
+      .from("products")
+      .select(legacyProductColumns)
+      .eq("is_active", true)
+      .order("display_order", { ascending: true })
+      .order("id", { ascending: true });
+
+    if (featuredOnly) {
+      legacyQuery = legacyQuery.eq("is_featured", true);
+    }
+
+    if (limit) {
+      legacyQuery = legacyQuery.limit(limit);
+    }
+
+    const legacyProductResult = await legacyQuery;
+    data = legacyProductResult.data;
+    error = legacyProductResult.error;
+  }
+
+  if (error && isMissingProductImageUrlColumn(error.message)) {
+    let baseQuery = supabase
+      .from("products")
+      .select(baseProductColumns)
+      .eq("is_active", true)
+      .order("display_order", { ascending: true })
+      .order("id", { ascending: true });
+
+    if (featuredOnly) {
+      baseQuery = baseQuery.eq("is_featured", true);
+    }
+
+    if (limit) {
+      baseQuery = baseQuery.limit(limit);
+    }
+
+    const baseProductResult = await baseQuery;
+    data = baseProductResult.data;
+    error = baseProductResult.error;
+  }
 
   if (error) {
     raiseSupabaseError("products", error.message);
@@ -293,12 +425,38 @@ export async function getProductById(
 ): Promise<Product | undefined> {
   const supabase = getSupabaseClient();
 
-  const { data, error } = await supabase
+  const productResult = await supabase
     .from("products")
     .select(productColumns)
     .eq("id", id)
     .eq("is_active", true)
     .maybeSingle();
+  let data: unknown = productResult.data;
+  let error: { message: string } | null = productResult.error;
+
+  if (error && isMissingProductImageUrlsColumn(error.message)) {
+    const legacyProductResult = await supabase
+      .from("products")
+      .select(legacyProductColumns)
+      .eq("id", id)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    data = legacyProductResult.data;
+    error = legacyProductResult.error;
+  }
+
+  if (error && isMissingProductImageUrlColumn(error.message)) {
+    const baseProductResult = await supabase
+      .from("products")
+      .select(baseProductColumns)
+      .eq("id", id)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    data = baseProductResult.data;
+    error = baseProductResult.error;
+  }
 
   if (error) {
     raiseSupabaseError("products", error.message);
