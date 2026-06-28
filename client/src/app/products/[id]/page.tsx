@@ -27,7 +27,7 @@ type ProductPageProps = {
   }>;
 };
 
-const productImage = "/locale-breeze-general-store-hero.png";
+const fallbackProductImage = "/locale-breeze-general-store-hero.png";
 
 function getRelatedProducts(product: Product, products: Product[]) {
   const sharedTags = new Set(product.tags);
@@ -144,7 +144,7 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
 
             <div className="relative min-h-80 overflow-hidden rounded-lg border border-stone-200 bg-stone-100 shadow-sm sm:min-h-[31rem]">
               <Image
-                src={productImage}
+                src={product.imageUrl || fallbackProductImage}
                 alt={product.imageAlt}
                 fill
                 priority

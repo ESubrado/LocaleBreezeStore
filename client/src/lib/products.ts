@@ -33,6 +33,7 @@ type ProductRow = {
   fulfillment_type: string;
   price_amount: number | string;
   currency: string;
+  image_url: string | null;
   image_alt: string;
   image_position: string | null;
   tags: Json | null;
@@ -64,6 +65,7 @@ export type Product = {
   format: string;
   fulfillmentType: string;
   price: string;
+  imageUrl: string;
   imageAlt: string;
   imagePosition?: string;
   tags: string[];
@@ -114,6 +116,7 @@ const productColumns = `
   fulfillment_type,
   price_amount,
   currency,
+  image_url,
   image_alt,
   image_position,
   tags,
@@ -195,6 +198,7 @@ function mapProductRow(row: ProductRow): Product {
     format: row.format,
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
+    imageUrl: row.image_url || catalogImage,
     imageAlt: row.image_alt,
     imagePosition: row.image_position ?? undefined,
     tags: toStringArray(row.tags),

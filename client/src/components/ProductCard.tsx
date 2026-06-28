@@ -8,6 +8,7 @@ export type ProductCardProps = {
   description: string;
   format: string;
   price: string;
+  imageUrl?: string;
   imageAlt: string;
   imagePosition?: string;
   tags: string[];
@@ -15,7 +16,7 @@ export type ProductCardProps = {
   href?: string;
 };
 
-const productImage = "/locale-breeze-general-store-hero.png";
+const fallbackProductImage = "/locale-breeze-general-store-hero.png";
 
 export default function ProductCard({
   name,
@@ -23,6 +24,7 @@ export default function ProductCard({
   description,
   format,
   price,
+  imageUrl = fallbackProductImage,
   imageAlt,
   imagePosition = "center",
   tags,
@@ -42,7 +44,7 @@ export default function ProductCard({
         }`}
       >
         <Image
-          src={productImage}
+          src={imageUrl}
           alt={imageAlt}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
