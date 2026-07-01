@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import AdminAccessGate from "@/components/AdminAccessGate";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Admin | Locale Breeze Store",
@@ -42,12 +43,14 @@ export default async function AdminPage() {
   };
 
   return (
-    <>
+    <div className="flex min-h-svh flex-col">
       <Navigation />
 
-      <main className="bg-[#f7faf7] text-stone-950">
+      <main className="flex-1 bg-[#f7faf7] text-stone-950">
         <AdminAccessGate session={session} />
       </main>
-    </>
+
+      <SiteFooter />
+    </div>
   );
 }

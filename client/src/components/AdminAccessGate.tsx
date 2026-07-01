@@ -16,7 +16,7 @@ export default function AdminAccessGate({
   session: AdminPageSession;
 }) {
   return (
-    <section className="mx-auto min-h-[calc(100svh-4rem)] w-full max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
+    <section className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
         <div>
           <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">

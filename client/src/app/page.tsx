@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import SiteFooter from "@/components/SiteFooter";
 import SupabaseDataDebug from "@/components/SupabaseDataDebug";
 import TopProductsCarousel from "@/components/TopProductsCarousel";
 import { getFeaturedProducts } from "@/lib/products";
@@ -142,6 +143,8 @@ export default async function Home() {
           </div>
         </section>
       </main>
+
+      <SiteFooter />
     </>
   );
 }
