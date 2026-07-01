@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   getAdminSession,
   onAdminAuthStateChange,
@@ -94,6 +95,9 @@ export default function AdminLoginDropdown() {
     setPassword("");
     setIsOpen(false);
     setIsSubmitting(false);
+    toast.success(
+      `You are now logged in as ${resolvedResult.session?.email ?? email.trim()}`,
+    );
     router.push("/admin");
     router.refresh();
   };
@@ -110,6 +114,7 @@ export default function AdminLoginDropdown() {
     setError("");
     setPassword("");
     setIsOpen(false);
+    toast.success("You have logged out of the site.");
 
     if (pathname === "/admin" || pathname.startsWith("/admin/")) {
       router.push("/");
