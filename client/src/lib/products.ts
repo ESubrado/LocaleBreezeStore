@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient, getSupabaseServerConfig } from "@/lib/supabase";
 
 type Json =
   | string
@@ -94,6 +94,7 @@ type ProductQueryOptions = {
 };
 
 const catalogImage = "/locale-breeze-general-store-hero.png";
+const productImagesBucket = "product-images";
 const productImageCount = 8;
 
 const catalogColumns = `
@@ -206,10 +207,15 @@ function resolveProductImageUrl(slug: string, imageUrl: string) {
     return imageUrl;
   }
 
-  return `/product-images/${slug}/${normalizedImageUrl}`;
+  const { supabaseUrl } = getSupabaseServerConfig();
+  const objectPath = [slug, ...normalizedImageUrl.split("/")]
+    .map(encodeURIComponent)
+    .join("/");
+
+  return `${supabaseUrl}/storage/v1/object/public/${productImagesBucket}/${objectPath}`;
 }
 
-function getLocalProductImageUrls(slug: string) {
+function getDefaultProductImageUrls(slug: string) {
   return Array.from(
     { length: productImageCount },
     (_, index) => resolveProductImageUrl(slug, `${index + 1}.png`),
@@ -268,7 +274,7 @@ function mapProductRow(row: ProductRow): Product {
     resolveProductImageUrl(row.slug, imageUrl),
   );
   const resolvedImageUrls =
-    imageUrls.length > 0 ? imageUrls : getLocalProductImageUrls(row.slug);
+    imageUrls.length > 0 ? imageUrls : getDefaultProductImageUrls(row.slug);
   const imageUrl =
     resolvedImageUrls[0] ??
     (row.image_url

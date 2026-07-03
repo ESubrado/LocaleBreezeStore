@@ -12,10 +12,14 @@ export type AdminSession = {
 };
 
 function mapSupabaseSession(session: Session | null): AdminSession | null {
+  // Keep the rest of the UI away from Supabase's full session shape. Components
+  // only need this small, serializable admin session summary.
   if (!session?.user) {
     return null;
   }
 
+  // Supabase app metadata is optional, so fall back to the normal authenticated
+  // role when the project has not assigned a custom admin role.
   const role =
     typeof session.user.app_metadata.role === "string"
       ? session.user.app_metadata.role
@@ -26,6 +30,8 @@ function mapSupabaseSession(session: Session | null): AdminSession | null {
     expiresAt: session.expires_at
       ? new Date(session.expires_at * 1000).toISOString()
       : undefined,
+    // last_sign_in_at is the clearest login timestamp after a sign-in. created_at
+    // keeps the field populated for accounts that do not have that value yet.
     loggedInAt: session.user.last_sign_in_at ?? session.user.created_at,
     role,
     userId: session.user.id,
@@ -54,6 +60,7 @@ export function onAdminAuthStateChange(
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Normalize every auth event before it reaches React state.
     callback(mapSupabaseSession(session));
   });
 

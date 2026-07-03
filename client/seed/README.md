@@ -26,8 +26,10 @@ kept in the app source.
   where `is_active = true`.
 - Product `image_urls` values store ordered filenames such as `1.png`,
   `2.png`, and so on. The app combines those filenames with each product
-  `slug` to serve files from `client/public/product-images/<slug>/`.
-  The first filename is also stored as `image_url` for list defaults and
-  backward-compatible reads.
+  `slug` to serve files from the public Supabase Storage bucket named
+  `product-images`.
+- Upload objects under `<product-slug>/<filename>`, for example
+  `budget-calculator-workbook/1.png`. The first filename is also stored as
+  `image_url` for list defaults and backward-compatible reads.
 - Inserts and updates should be done through the Supabase dashboard, SQL Editor,
   a protected admin route, or a server-only script with a secret key.
