@@ -16,63 +16,52 @@ export default function AdminAccessGate({
   session: AdminPageSession;
 }) {
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
-      <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">
-            Admin
-          </p>
-          <h1 className="mt-3 text-4xl font-bold leading-tight text-stone-950 sm:text-5xl">
-            Welcome back, {session.email}.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-8 text-stone-700">
-            This page is shown after a successful login and is ready to grow
-            into the store management area.
-          </p>
-        </div>
-
-        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-normal text-[#b15a2b]">
-            Current session
-          </p>
-          <h2 className="mt-3 text-2xl font-bold text-stone-950">
-            Login details
-          </h2>
-
-          <div className="mt-6 grid gap-3">
-            <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
-              <span className="block text-sm font-semibold text-stone-950">
-                Logged in
-              </span>
-              <span className="mt-1 block text-sm text-stone-600">
-                {formatSessionDate(session.loggedInAt)}
-              </span>
-            </div>
-            <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
-              <span className="block text-sm font-semibold text-stone-950">
-                Role
-              </span>
-              <span className="mt-1 block text-sm capitalize text-stone-600">
-                {session.role}
-              </span>
-            </div>
-            <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
-              <span className="block text-sm font-semibold text-stone-950">
-                User ID
-              </span>
-              <span className="mt-1 block break-all text-xs leading-5 text-stone-600">
-                {session.userId}
-              </span>
-            </div>
-            <div className="rounded-lg border border-stone-200 bg-[#fbfcf8] p-4">
-              <span className="block text-sm font-semibold text-stone-950">
-                Session expires
-              </span>
-              <span className="mt-1 block text-sm text-stone-600">
-                {formatSessionDate(session.expiresAt)}
-              </span>
-            </div>
+    <section className="mx-auto w-full max-w-7xl px-5 py-5 sm:px-8 lg:py-6">
+      <div className="rounded-lg border border-stone-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-normal text-[#b15a2b]">
+              Current session
+            </p>
+            <p className="mt-1 truncate text-sm font-semibold text-stone-950">
+              {session.email}
+            </p>
           </div>
+
+          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="min-w-0">
+              <dt className="text-xs font-semibold uppercase tracking-normal text-stone-500">
+                Logged in
+              </dt>
+              <dd className="mt-1 truncate text-sm text-stone-700">
+                {formatSessionDate(session.loggedInAt)}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-xs font-semibold uppercase tracking-normal text-stone-500">
+                Role
+              </dt>
+              <dd className="mt-1 truncate text-sm capitalize text-stone-700">
+                {session.role}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-xs font-semibold uppercase tracking-normal text-stone-500">
+                User ID
+              </dt>
+              <dd className="mt-1 truncate text-xs text-stone-600">
+                {session.userId}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-xs font-semibold uppercase tracking-normal text-stone-500">
+                Expires
+              </dt>
+              <dd className="mt-1 truncate text-sm text-stone-700">
+                {formatSessionDate(session.expiresAt)}
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
     </section>
