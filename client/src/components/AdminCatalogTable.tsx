@@ -45,11 +45,12 @@ export default function AdminCatalogTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] text-left text-sm">
+        <table className="w-full min-w-[1120px] text-left text-sm">
           <thead className="bg-[#fbfcf8] text-xs font-semibold uppercase tracking-normal text-stone-500">
             <tr>
               <th className="px-4 py-3">Catalog</th>
               <th className="px-4 py-3">Slug</th>
+              <th className="px-4 py-3">Image</th>
               <th className="px-4 py-3">Order</th>
               <th className="px-4 py-3">Samples</th>
               <th className="px-4 py-3">Examples</th>
@@ -73,6 +74,18 @@ export default function AdminCatalogTable({
                     <code className="rounded-md bg-[#f7faf7] px-2 py-1 text-xs font-medium text-stone-700">
                       {catalog.slug}
                     </code>
+                  </td>
+                  <td className="px-4 py-4">
+                    {catalog.imagePath ? (
+                      <code
+                        className="block max-w-[12rem] truncate rounded-md bg-[#f7faf7] px-2 py-1 text-xs font-medium text-stone-700"
+                        title={catalog.imagePath}
+                      >
+                        {catalog.imagePath}
+                      </code>
+                    ) : (
+                      <span className="text-stone-500">Default</span>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-stone-700">
                     {catalog.displayOrder}
@@ -104,7 +117,7 @@ export default function AdminCatalogTable({
             ) : (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-8 text-center text-sm text-stone-500"
                 >
                   No catalog rows available.

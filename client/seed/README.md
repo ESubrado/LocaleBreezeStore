@@ -24,6 +24,11 @@ kept in the app source.
 - Do not put a `service_role` key in a `NEXT_PUBLIC_*` environment variable.
 - The read policies in `schema.sql` allow anonymous visitors to read only rows
   where `is_active = true`.
+- Catalog `image_url` values store a filename or absolute image URL. Filename
+  values are loaded from the public Supabase Storage bucket named
+  `catalog-images` under `<catalog-slug>/<filename>`.
+- Upload catalog images under `<catalog-slug>/<filename>` in that bucket, for
+  example `digital-print/1.png`.
 - Product `image_urls` values store ordered filenames such as `1.png`,
   `2.png`, and so on. The app combines those filenames with each product
   `slug` to serve files from the public Supabase Storage bucket named
