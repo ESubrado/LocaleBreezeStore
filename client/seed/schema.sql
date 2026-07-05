@@ -9,6 +9,7 @@ create table if not exists public.catalogs (
   title varchar(160) not null,
   description text not null,
   sample_item_count integer not null default 0 check (sample_item_count >= 0),
+  image_url text not null default '/locale-breeze-general-store-hero.png',
   image_alt text not null,
   image_position varchar(40) not null default 'center',
   examples jsonb not null default '[]'::jsonb,
@@ -49,6 +50,9 @@ alter table public.products
 
 alter table public.products
   add column if not exists image_urls jsonb not null default '[]'::jsonb;
+
+alter table public.catalogs
+  add column if not exists image_url text not null default '/locale-breeze-general-store-hero.png';
 
 -- These indexes match the app's most common reads:
 -- active rows ordered for catalog pages, and featured rows for the homepage.

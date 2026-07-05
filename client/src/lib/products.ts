@@ -16,6 +16,7 @@ type CatalogRow = {
   title: string;
   description: string;
   sample_item_count: number | null;
+  image_url?: string | null;
   image_alt: string;
   image_position: string | null;
   examples: Json | null;
@@ -51,6 +52,7 @@ export type ProductCatalog = {
   title: string;
   description: string;
   count: string;
+  imageUrl: string;
   imageAlt: string;
   imagePosition: string;
   examples: string[];
@@ -94,10 +96,24 @@ type ProductQueryOptions = {
 };
 
 const catalogImage = "/locale-breeze-general-store-hero.png";
+const catalogImagesBucket = "catalog-images";
 const productImagesBucket = "product-images";
 const productImageCount = 8;
 
 const catalogColumns = `
+  id,
+  slug,
+  title,
+  description,
+  sample_item_count,
+  image_url,
+  image_alt,
+  image_position,
+  examples,
+  display_order
+`;
+
+const legacyCatalogColumns = `
   id,
   slug,
   title,
@@ -200,7 +216,11 @@ function isAbsoluteImageUrl(value: string) {
   return value.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(value);
 }
 
-function resolveProductImageUrl(slug: string, imageUrl: string) {
+function resolveStorageImageUrl(
+  bucketName: string,
+  pathSegments: string[],
+  imageUrl: string,
+) {
   const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
 
   if (isAbsoluteImageUrl(imageUrl)) {
@@ -208,11 +228,19 @@ function resolveProductImageUrl(slug: string, imageUrl: string) {
   }
 
   const { supabaseUrl } = getSupabaseServerConfig();
-  const objectPath = [slug, ...normalizedImageUrl.split("/")]
+  const objectPath = [...pathSegments, ...normalizedImageUrl.split("/")]
     .map(encodeURIComponent)
     .join("/");
 
-  return `${supabaseUrl}/storage/v1/object/public/${productImagesBucket}/${objectPath}`;
+  return `${supabaseUrl}/storage/v1/object/public/${bucketName}/${objectPath}`;
+}
+
+function resolveCatalogImageUrl(slug: string, imageUrl: string) {
+  return resolveStorageImageUrl(catalogImagesBucket, [slug], imageUrl);
+}
+
+function resolveProductImageUrl(slug: string, imageUrl: string) {
+  return resolveStorageImageUrl(productImagesBucket, [slug], imageUrl);
 }
 
 function getDefaultProductImageUrls(slug: string) {
@@ -224,6 +252,10 @@ function getDefaultProductImageUrls(slug: string) {
 
 function isMissingProductImageUrlsColumn(message: string) {
   return message.includes("image_urls");
+}
+
+function isMissingCatalogImageUrlColumn(message: string) {
+  return message.includes("image_url");
 }
 
 function isMissingProductImageUrlColumn(message: string) {
@@ -257,12 +289,17 @@ function formatPrice(amount: number | string, currency: string) {
 function mapCatalogRow(row: CatalogRow): ProductCatalog {
   // This converts database snake_case columns into the camelCase shape the
   // existing React components already understand.
+  const imageUrl = row.image_url
+    ? resolveCatalogImageUrl(row.slug, row.image_url)
+    : catalogImage;
+
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     description: row.description,
     count: formatCatalogCount(row.sample_item_count),
+    imageUrl,
     imageAlt: row.image_alt,
     imagePosition: row.image_position ?? "center",
     examples: toStringArray(row.examples),
@@ -324,12 +361,27 @@ function raiseSupabaseError(tableName: string, message: string): never {
 export async function getProductCatalogs(): Promise<ProductCatalog[]> {
   const supabase = getSupabaseClient();
 
-  const { data, error } = await supabase
+  const catalogResult = await supabase
     .from("catalogs")
     .select(catalogColumns)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("id", { ascending: true });
+
+  let data: unknown = catalogResult.data;
+  let error: { message: string } | null = catalogResult.error;
+
+  if (error && isMissingCatalogImageUrlColumn(error.message)) {
+    const legacyCatalogResult = await supabase
+      .from("catalogs")
+      .select(legacyCatalogColumns)
+      .eq("is_active", true)
+      .order("display_order", { ascending: true })
+      .order("id", { ascending: true });
+
+    data = legacyCatalogResult.data;
+    error = legacyCatalogResult.error;
+  }
 
   if (error) {
     raiseSupabaseError("catalogs", error.message);

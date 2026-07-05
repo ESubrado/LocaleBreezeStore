@@ -16,6 +16,7 @@ type AdminCatalogRow = {
   title: string;
   description: string;
   sample_item_count: number | null;
+  image_url?: string | null;
   examples: Json | null;
   display_order: number | null;
   is_active: boolean;
@@ -29,6 +30,8 @@ export type AdminCatalog = {
   title: string;
   description: string;
   sampleItemCount: number;
+  imageUrl: string | null;
+  imagePath: string | null;
   examples: string[];
   displayOrder: number;
   isActive: boolean;
@@ -37,6 +40,20 @@ export type AdminCatalog = {
 };
 
 const adminCatalogColumns = `
+  id,
+  slug,
+  title,
+  description,
+  sample_item_count,
+  image_url,
+  examples,
+  display_order,
+  is_active,
+  created_at,
+  updated_at
+`;
+
+const legacyAdminCatalogColumns = `
   id,
   slug,
   title,
@@ -68,6 +85,24 @@ function toStringArray(value: Json | null | undefined): string[] {
   }
 }
 
+function isAbsoluteImageUrl(value: string) {
+  return value.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(value);
+}
+
+function getCatalogImagePath(slug: string, imageUrl: string | null | undefined) {
+  if (!imageUrl) {
+    return null;
+  }
+
+  if (isAbsoluteImageUrl(imageUrl)) {
+    return imageUrl;
+  }
+
+  const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
+
+  return ["catalog-images", slug, ...normalizedImageUrl.split("/")].join("/");
+}
+
 function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {
   return {
     id: row.id,
@@ -75,6 +110,8 @@ function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {
     title: row.title,
     description: row.description,
     sampleItemCount: row.sample_item_count ?? 0,
+    imageUrl: row.image_url ?? null,
+    imagePath: getCatalogImagePath(row.slug, row.image_url),
     examples: toStringArray(row.examples),
     displayOrder: row.display_order ?? 0,
     isActive: row.is_active,
@@ -86,11 +123,25 @@ function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {
 export async function getAdminCatalogs(): Promise<AdminCatalog[]> {
   const supabase = getSupabaseClient();
 
-  const { data, error } = await supabase
+  const catalogResult = await supabase
     .from("catalogs")
     .select(adminCatalogColumns)
     .order("display_order", { ascending: true })
     .order("id", { ascending: true });
+
+  let data: unknown = catalogResult.data;
+  let error: { message: string } | null = catalogResult.error;
+
+  if (error && error.message.includes("image_url")) {
+    const legacyCatalogResult = await supabase
+      .from("catalogs")
+      .select(legacyAdminCatalogColumns)
+      .order("display_order", { ascending: true })
+      .order("id", { ascending: true });
+
+    data = legacyCatalogResult.data;
+    error = legacyCatalogResult.error;
+  }
 
   if (error) {
     throw new Error(`Unable to load admin catalogs from Supabase: ${error.message}`);

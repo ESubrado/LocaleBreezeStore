@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/product-images/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "qzibfiwzfbibthxfhyvr.supabase.co",
+        pathname: "/storage/v1/object/public/catalog-images/**",
+        search: "",
+      },
     ],
   },
 };

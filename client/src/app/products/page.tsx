@@ -108,7 +108,7 @@ export default async function Products() {
               >
                 <div className="relative min-h-56 bg-stone-100">
                   <Image
-                    src={catalogImage}
+                    src={catalog.imageUrl}
                     alt={catalog.imageAlt}
                     fill
                     sizes="(max-width: 768px) 100vw, 25vw"
