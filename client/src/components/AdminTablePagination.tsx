@@ -23,13 +23,13 @@ export default function AdminTablePagination({
   const end = Math.min(page * pageSize, totalCount);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-stone-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-stone-600">
+    <div className="flex flex-col gap-3 border-t border-white/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-slate-400">
         Showing {start}-{end} of {totalCount}
       </p>
 
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-stone-600">
+        <span className="text-sm font-medium text-slate-400">
           Page {page} of {pageCount}
         </span>
         <div className="flex items-center gap-2">
@@ -40,6 +40,7 @@ export default function AdminTablePagination({
             size="sm"
             type="button"
             variant="outline"
+            className="rounded-full border-white/10 bg-white/5 text-slate-300 hover:border-blue-500/40 hover:bg-white/10 hover:text-white"
           >
             <ChevronLeft />
             Previous
@@ -51,6 +52,7 @@ export default function AdminTablePagination({
             size="sm"
             type="button"
             variant="outline"
+            className="rounded-full border-white/10 bg-white/5 text-slate-300 hover:border-blue-500/40 hover:bg-white/10 hover:text-white"
           >
             Next
             <ChevronRight />

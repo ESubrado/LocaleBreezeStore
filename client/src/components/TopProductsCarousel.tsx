@@ -21,18 +21,18 @@ export default function TopProductsCarousel({
   return (
     <section
       aria-labelledby="top-products-heading"
-      className="border-y border-stone-200 bg-white"
+      className="border-y border-border bg-card"
     >
       <div className="mx-auto w-full max-w-7xl px-5 py-9 sm:px-8 lg:py-12">
         <Carousel aria-labelledby="top-products-heading">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-normal text-[#b15a2b]">
+              <p className="text-sm font-semibold uppercase tracking-normal text-primary">
                 Top products
               </p>
               <h2
                 id="top-products-heading"
-                className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl"
+                className="mt-3 text-2xl font-bold text-foreground sm:text-3xl"
               >
                 Customer-ready picks across digital, print, and everyday needs.
               </h2>
@@ -43,18 +43,18 @@ export default function TopProductsCarousel({
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-11 rounded-full border-stone-300 bg-white px-4 text-stone-950 hover:border-[#24786b] hover:text-[#24786b]"
+                className="h-11 rounded-md px-4"
               >
                 <Link href="/products">View catalog</Link>
               </Button>
               <div className="flex gap-2" aria-label="Carousel controls">
                 <CarouselPrevious
                   aria-label="Show previous top products"
-                  className="static size-11 translate-y-0 rounded-full border-stone-300 bg-white text-stone-950 hover:border-[#24786b] hover:text-[#24786b]"
+                  className="static size-11 translate-y-0 rounded-md"
                 />
                 <CarouselNext
                   aria-label="Show next top products"
-                  className="static size-11 translate-y-0 rounded-full border-stone-300 bg-white text-stone-950 hover:border-[#24786b] hover:text-[#24786b]"
+                  className="static size-11 translate-y-0 rounded-md"
                 />
               </div>
             </div>
