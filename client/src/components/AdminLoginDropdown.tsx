@@ -131,10 +131,10 @@ export default function AdminLoginDropdown() {
         <Link
           href="/admin"
           aria-current={isAdminActive ? "page" : undefined}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+          className={`rounded-sm px-4 py-2 text-sm font-medium transition ${
             isAdminActive
-              ? "bg-stone-950 text-white"
-              : "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+              ? "bg-blue-600 text-white"
+              : "text-slate-300 hover:bg-slate-800 hover:text-white"
           }`}
         >
           Admin
@@ -142,7 +142,7 @@ export default function AdminLoginDropdown() {
         <button
           type="button"
           onClick={handleSignOut}
-          className="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950"
+          className="rounded-sm px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
         >
           Logout
         </button>
@@ -160,7 +160,7 @@ export default function AdminLoginDropdown() {
           setIsOpen((current) => !current);
           setError("");
         }}
-        className="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950"
+        className="rounded-sm px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
       >
         Login
       </button>
@@ -169,12 +169,12 @@ export default function AdminLoginDropdown() {
         <div
           role="dialog"
           aria-label="Admin login"
-          className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-lg border border-stone-200 bg-white p-5 text-left shadow-xl"
+          className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-md border border-border bg-popover p-5 text-left shadow-xl"
         >
-          <p className="text-xs font-semibold uppercase tracking-normal text-[#24786b]">
+          <p className="text-xs font-semibold uppercase tracking-normal text-primary">
             Admin login
           </p>
-          <h2 className="mt-2 text-lg font-bold text-stone-950">
+          <h2 className="mt-2 text-lg font-bold text-popover-foreground">
             Sign in with your Supabase admin account.
           </h2>
 
@@ -182,7 +182,7 @@ export default function AdminLoginDropdown() {
             <div>
               <label
                 htmlFor="admin-nav-email"
-                className="text-sm font-semibold text-stone-800"
+                className="text-sm font-semibold text-popover-foreground"
               >
                 Email
               </label>
@@ -193,7 +193,7 @@ export default function AdminLoginDropdown() {
                 autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-2 min-h-11 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-[#24786b] focus:ring-2 focus:ring-[#24786b]/20"
+                className="mt-2 min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="admin@example.com"
                 required
               />
@@ -202,7 +202,7 @@ export default function AdminLoginDropdown() {
             <div>
               <label
                 htmlFor="admin-nav-password"
-                className="text-sm font-semibold text-stone-800"
+                className="text-sm font-semibold text-popover-foreground"
               >
                 Password
               </label>
@@ -213,14 +213,14 @@ export default function AdminLoginDropdown() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="mt-2 min-h-11 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-[#24786b] focus:ring-2 focus:ring-[#24786b]/20"
+                className="mt-2 min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="Enter password"
                 required
               />
             </div>
 
             {error ? (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
                 {error}
               </p>
             ) : null}
@@ -228,7 +228,7 @@ export default function AdminLoginDropdown() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-950 focus:ring-offset-2"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
               {isSubmitting ? "Logging in..." : "Login"}
             </button>

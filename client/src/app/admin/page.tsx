@@ -72,7 +72,8 @@ export default async function AdminPage() {
   };
 
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="fluid-home dark flex min-h-svh flex-col bg-background text-foreground">
+      <div className="fluid-home-noise" />
       <Navigation />
 
       <AdminBrowserSessionGate>
