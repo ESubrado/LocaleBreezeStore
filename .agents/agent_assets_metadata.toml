@@ -53,3 +53,9 @@ id = "e0xHvKFfpEghz-kUEGIJ-"
 uri = "file://artifacts/mockup-sandbox/public/images/storefront/fluid-hero.jpg"
 type = "image"
 title = "dark moody professional tech workspace abstract blue lighting"
+
+[[outputs]]
+id = "Vpa_P5OS_c8AxfFNn4J8D"
+uri = "file://artifacts/locale-breeze-store/NEXTJS_PORT_GUIDE.md"
+type = "text"
+title = "Next.js Port Guide"
