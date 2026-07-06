@@ -1,0 +1,37 @@
+uploads = []
+
+[[generated]]
+id = "SEqFMYk0sVzArkMx4R_Z4"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-hero.png"
+type = "image"
+title = "Cinematic dark tech desk setup"
+
+[[generated]]
+id = "OeAnfZePbbGbszrXrNAp2"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-notebook.png"
+type = "image"
+title = "Premium notebooks on dark background"
+
+[[generated]]
+id = "JWHmHn53RlMMnAV18XWzH"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-planner.png"
+type = "image"
+title = "iPad showing weekly planner"
+
+[[generated]]
+id = "_g76gAm1SRIEmvuzP4hQA"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-ink.png"
+type = "image"
+title = "Ink cartridge with rim lighting"
+
+[[generated]]
+id = "USyYFVCY2Zs9xJf9w19lW"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-adapter.png"
+type = "image"
+title = "USB-C adapter on dark surface"
+
+[[outputs]]
+id = "e0xHvKFfpEghz-kUEGIJ-"
+uri = "file://artifacts/mockup-sandbox/public/images/storefront/fluid-hero.jpg"
+type = "image"
+title = "dark moody professional tech workspace abstract blue lighting"
