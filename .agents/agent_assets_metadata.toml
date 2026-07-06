@@ -30,6 +30,12 @@ uri = "file://artifacts/mockup-sandbox/public/images/storefront/cinematic-adapte
 type = "image"
 title = "USB-C adapter on dark surface"
 
+[[generated]]
+id = "oDRE7NpL5PxanCOdvF_VQ"
+uri = "file://artifacts/locale-breeze-store/src/assets/hero-tech-bg.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "e0xHvKFfpEghz-kUEGIJ-"
 uri = "file://artifacts/mockup-sandbox/public/images/storefront/fluid-hero.jpg"
