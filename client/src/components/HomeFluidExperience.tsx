@@ -1,13 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Download, Layers, Package } from "lucide-react";
 import heroTechBg from "@/app/assets/hero-tech-bg.png";
-import type { ProductCardProps } from "@/components/ProductCard";
+import ProductCard, { type ProductCardProps } from "@/components/ProductCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  useCarousel,
+} from "@/components/ui/carousel";
 
 type HomeProduct = ProductCardProps & {
   id: number;
@@ -16,8 +23,6 @@ type HomeProduct = ProductCardProps & {
 type HomeFluidExperienceProps = {
   topProducts: HomeProduct[];
 };
-
-const fallbackProductImage = "/locale-breeze-general-store-hero.png";
 
 const storePillars = [
   {
@@ -175,11 +180,7 @@ export default function HomeFluidExperience({
         </motion.div>
 
         {topProducts.length > 0 ? (
-          <div className="flex flex-col gap-8 px-5 sm:px-8 lg:px-16">
-            {topProducts.map((product, index) => (
-              <ProductRow key={product.id} product={product} index={index} />
-            ))}
-          </div>
+          <ProductCarousel products={topProducts} />
         ) : (
           <p className="mx-auto max-w-7xl px-5 text-slate-400 sm:px-8">
             No products are available yet.
@@ -224,69 +225,81 @@ export default function HomeFluidExperience({
   );
 }
 
-function ProductRow({
-  product,
-  index,
-}: {
-  product: HomeProduct;
-  index: number;
-}) {
-  const imageUrl = product.imageUrl ?? product.imageUrls?.[0] ?? fallbackProductImage;
-
+function ProductCarousel({ products }: { products: HomeProduct[] }) {
   return (
-    <Link href={`/products/${product.id}`} className="block">
-      <motion.article
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, delay: index * 0.1 }}
-        className="group relative flex flex-col overflow-hidden rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 lg:flex-row lg:items-center"
-      >
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-black lg:w-1/3">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
-          <Image
-            src={imageUrl}
-            alt={product.imageAlt}
-            fill
-            sizes="(max-width: 1024px) 100vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            style={{ objectPosition: product.imagePosition ?? "center" }}
-          />
-        </div>
+    <Carousel
+      aria-label="Curated essentials"
+      className="mx-auto w-full max-w-7xl px-5 sm:px-8"
+    >
+      <AutoAdvanceProductCarousel enabled={products.length > 1} />
 
-        <div className="flex flex-1 flex-col justify-between p-8 lg:p-12">
-          <div>
-            <div className="mb-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
-                {product.category}
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">
-                {product.format}
-              </span>
-            </div>
-            <h3 className="text-2xl font-bold tracking-normal text-foreground lg:text-3xl">
-              {product.name}
-            </h3>
-            <p className="mt-4 max-w-xl text-slate-400">
-              {product.description}
-            </p>
-          </div>
+      <div className="mb-6 flex items-center justify-end gap-2">
+        <CarouselPrevious
+          aria-label="Show previous curated essential"
+          className="static size-11 translate-y-0 rounded-full border-white/10 bg-white/5 text-white hover:border-blue-500/40 hover:bg-white/10 hover:text-blue-300"
+        />
+        <CarouselNext
+          aria-label="Show next curated essential"
+          className="static size-11 translate-y-0 rounded-full border-white/10 bg-white/5 text-white hover:border-blue-500/40 hover:bg-white/10 hover:text-blue-300"
+        />
+      </div>
 
-          <div className="mt-8 flex items-end justify-between border-t border-white/10 pt-8">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-normal text-slate-500">
-                Price
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-foreground">
-                {product.price}
-              </p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-foreground transition-colors group-hover:bg-white group-hover:text-black">
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-      </motion.article>
-    </Link>
+      <CarouselContent className="-ml-5 pb-4">
+        {products.map((product, index) => (
+          <CarouselItem
+            key={product.id}
+            className="basis-[82vw] pl-5 sm:basis-[22rem] lg:basis-[24rem]"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, delay: index * 0.08 }}
+              className="h-full"
+            >
+              <ProductCard
+                {...product}
+                compact
+                href={`/products/${product.id}`}
+              />
+            </motion.div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+    </Carousel>
   );
+}
+
+function AutoAdvanceProductCarousel({ enabled }: { enabled: boolean }) {
+  const { canScrollNext, scrollNext, viewportRef } = useCarousel();
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      const viewport = viewportRef.current;
+
+      if (!viewport) {
+        return;
+      }
+
+      if (canScrollNext) {
+        scrollNext();
+        return;
+      }
+
+      viewport.scrollTo({
+        behavior: "smooth",
+        left: 0,
+      });
+    }, 3000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [canScrollNext, enabled, scrollNext, viewportRef]);
+
+  return null;
 }
