@@ -7,7 +7,7 @@ import Navigation from "@/components/Navigation";
 import SiteFooter from "@/components/SiteFooter";
 import SupabaseDataDebug from "@/components/SupabaseDataDebug";
 import { getFeaturedProducts, type Product } from "@/lib/products";
-import "./home.css";
+import "@/styles/fluid-theme.css";
 
 const storePillars = [
   {

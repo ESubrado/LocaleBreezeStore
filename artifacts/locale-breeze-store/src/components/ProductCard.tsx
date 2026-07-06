@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 export type ProductCardProps = {
   name: string;
@@ -36,44 +35,43 @@ export default function ProductCard({
   const defaultImageUrl = imageUrls?.[0] ?? imageUrl ?? fallbackProductImage;
 
   const card = (
-    <Card
+    <article
       role="article"
-      className="flex h-full flex-col gap-0 overflow-hidden rounded-md border-border bg-card py-0 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10 transition-all hover:-translate-y-0.5 hover:bg-white/10"
     >
       <div
-        className={`relative bg-muted ${
+        className={`relative overflow-hidden bg-black ${
           compact ? "aspect-[16/9]" : "aspect-[4/3]"
         }`}
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
         <img
           src={defaultImageUrl}
           alt={imageAlt}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           style={{ objectPosition: imagePosition }}
         />
       </div>
 
-      <CardContent
-        className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}
-      >
+      <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-sm bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+          <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
             {category}
           </span>
-          <span className="rounded-sm bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">
             {format}
           </span>
         </div>
 
         <h3
-          className={`font-semibold text-foreground ${
+          className={`font-semibold tracking-tight text-foreground ${
             compact ? "mt-3 text-base leading-5" : "mt-4 text-lg leading-6"
           }`}
         >
           {name}
         </h3>
         <p
-          className={`mt-2 flex-1 overflow-hidden text-muted-foreground ${
+          className={`mt-2 flex-1 overflow-hidden text-slate-400 ${
             compact ? "text-xs leading-5" : "text-sm leading-6"
           }`}
           style={
@@ -93,19 +91,19 @@ export default function ProductCard({
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="rounded-sm border border-border px-3 py-1 text-xs font-medium text-muted-foreground"
+              className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-slate-400"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <CardFooter
-          className={`flex items-center justify-between border-t border-border px-0 pb-0 ${
+        <div
+          className={`flex items-center justify-between border-t border-white/10 ${
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
           }`}
         >
-          <span className="text-sm font-medium text-muted-foreground">Sample</span>
+          <span className="text-sm font-medium text-slate-500">Sample</span>
           <span
             className={`font-bold text-foreground ${
               compact ? "text-base" : "text-lg"
@@ -113,9 +111,9 @@ export default function ProductCard({
           >
             {price}
           </span>
-        </CardFooter>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </article>
   );
 
   if (!href) {
@@ -126,7 +124,7 @@ export default function ProductCard({
     <Link
       href={href}
       aria-label={`View details for ${name}`}
-      className="block h-full rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className="block h-full rounded-3xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
     >
       {card}
     </Link>
