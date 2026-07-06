@@ -28,6 +28,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import productDetailTechBg from "@/assets/product-detail-tech-bg.png";
 import "@/styles/fluid-theme.css";
 
 const fallbackProductImage = "/locale-breeze-general-store-hero.png";
@@ -128,7 +129,12 @@ export default function ProductItemPage() {
     <>
       <Navigation />
 
-      <main className="fluid-home dark bg-background text-foreground">
+      <main className="fluid-home dark isolate bg-background text-foreground">
+        <div
+          className="fixed inset-0 -z-30 bg-cover bg-center bg-no-repeat opacity-30"
+          style={{ backgroundImage: `url(${productDetailTechBg})` }}
+        />
+        <div className="fixed inset-0 -z-30 bg-gradient-to-b from-slate-950/40 via-slate-950/70 to-slate-950" />
         <div className="fluid-home-noise" />
 
         <section className="relative overflow-hidden px-5 pt-24 pb-16 sm:px-8 lg:pb-24">
