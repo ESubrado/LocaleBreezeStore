@@ -114,17 +114,17 @@ export default function Home() {
 
       <main
         ref={containerRef}
-        className="fluid-home dark bg-background text-foreground"
+        className="fluid-home dark isolate bg-background text-foreground"
       >
+        <div
+          className="fixed inset-0 -z-30 bg-cover bg-center bg-no-repeat opacity-30"
+          style={{ backgroundImage: `url(${heroTechBg})` }}
+        />
+        <div className="fixed inset-0 -z-30 bg-gradient-to-b from-slate-950/40 via-slate-950/70 to-slate-950" />
         <div className="fluid-home-noise" />
 
         {/* Hero */}
         <section className="isolate relative flex min-h-[88svh] items-center justify-center overflow-hidden px-5 pt-24 sm:px-8">
-          <div
-            className="absolute inset-0 -z-20 bg-cover bg-center opacity-40"
-            style={{ backgroundImage: `url(${heroTechBg})` }}
-          />
-          <div className="absolute inset-0 -z-20 bg-gradient-to-b from-slate-950/30 via-slate-950/60 to-slate-950" />
           <div className="fluid-home-gradient-blur" />
           <motion.div
             style={{ y: heroY, opacity: heroOpacity }}
