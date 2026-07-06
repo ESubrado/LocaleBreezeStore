@@ -2,12 +2,12 @@ import { Link } from "wouter";
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-stone-200 bg-white text-stone-700">
+    <footer className="border-t border-slate-800 bg-slate-950 text-slate-300">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between">
         <div>
           <Link
             href="/"
-            className="text-base font-semibold text-stone-950 transition hover:text-[#24786b]"
+            className="text-base font-semibold text-white transition hover:text-blue-400"
           >
             Locale Breeze Store
           </Link>
@@ -20,13 +20,13 @@ export default function SiteFooter() {
         <nav aria-label="Footer navigation" className="flex flex-wrap gap-4">
           <Link
             href="/"
-            className="text-sm font-medium transition hover:text-[#24786b]"
+            className="text-sm font-medium transition hover:text-blue-400"
           >
             Home
           </Link>
           <Link
             href="/products"
-            className="text-sm font-medium transition hover:text-[#24786b]"
+            className="text-sm font-medium transition hover:text-blue-400"
           >
             Products
           </Link>

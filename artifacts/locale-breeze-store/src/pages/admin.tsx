@@ -73,7 +73,7 @@ export default function AdminPage() {
     return (
       <div className="flex min-h-svh flex-col">
         <Navigation />
-        <main className="flex flex-1 items-center justify-center bg-[#f7faf7] text-stone-500">
+        <main className="flex flex-1 items-center justify-center bg-background text-muted-foreground">
           Checking admin access...
         </main>
         <SiteFooter />
@@ -85,17 +85,17 @@ export default function AdminPage() {
     <div className="flex min-h-svh flex-col">
       <Navigation />
 
-      <main className="flex-1 bg-[#f7faf7] text-stone-950">
+      <main className="flex-1 bg-background text-foreground">
         <AdminAccessGate session={session} />
 
         <section className="mx-auto w-full max-w-7xl px-5 pb-12 sm:px-8 lg:pb-16">
           <Tabs defaultValue="catalog" className="w-full">
-            <div className="flex flex-col gap-4 border-b border-stone-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">
+                <p className="text-sm font-semibold uppercase tracking-normal text-primary">
                   Workspace
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-stone-950">
+                <h2 className="mt-2 text-2xl font-bold text-foreground">
                   Store management
                 </h2>
               </div>
@@ -116,19 +116,19 @@ export default function AdminPage() {
             </TabsContent>
 
             <TabsContent value="pages">
-              <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-                <div className="flex items-center justify-between gap-4 border-b border-stone-200 px-4 py-3">
-                  <h3 className="text-sm font-semibold text-stone-950">
+              <div className="overflow-hidden rounded-md border border-border bg-card shadow-sm">
+                <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Page controls
                   </h3>
-                  <span className="text-xs font-medium text-stone-500">
+                  <span className="text-xs font-medium text-muted-foreground">
                     0 controls
                   </span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[680px] text-left text-sm">
-                    <thead className="bg-[#fbfcf8] text-xs font-semibold uppercase tracking-normal text-stone-500">
+                    <thead className="bg-muted text-xs font-semibold uppercase tracking-normal text-muted-foreground">
                       <tr>
                         <th className="px-4 py-3">Control</th>
                         <th className="px-4 py-3">Page</th>
@@ -136,11 +136,11 @@ export default function AdminPage() {
                         <th className="px-4 py-3">Updated</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-stone-100">
+                    <tbody className="divide-y divide-border">
                       <tr>
                         <td
                           colSpan={4}
-                          className="px-4 py-8 text-center text-sm text-stone-500"
+                          className="px-4 py-8 text-center text-sm text-muted-foreground"
                         >
                           No page controls configured.
                         </td>

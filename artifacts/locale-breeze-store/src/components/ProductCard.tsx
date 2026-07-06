@@ -38,10 +38,10 @@ export default function ProductCard({
   const card = (
     <Card
       role="article"
-      className="flex h-full flex-col gap-0 overflow-hidden rounded-lg border-stone-200 bg-white py-0 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="flex h-full flex-col gap-0 overflow-hidden rounded-md border-border bg-card py-0 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
     >
       <div
-        className={`relative bg-stone-100 ${
+        className={`relative bg-muted ${
           compact ? "aspect-[16/9]" : "aspect-[4/3]"
         }`}
       >
@@ -57,23 +57,23 @@ export default function ProductCard({
         className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}
       >
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-[#e6f2ef] px-3 py-1 text-xs font-semibold text-[#24786b]">
+          <span className="rounded-sm bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
             {category}
           </span>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
+          <span className="rounded-sm bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
             {format}
           </span>
         </div>
 
         <h3
-          className={`font-semibold text-stone-950 ${
+          className={`font-semibold text-foreground ${
             compact ? "mt-3 text-base leading-5" : "mt-4 text-lg leading-6"
           }`}
         >
           {name}
         </h3>
         <p
-          className={`mt-2 flex-1 overflow-hidden text-stone-600 ${
+          className={`mt-2 flex-1 overflow-hidden text-muted-foreground ${
             compact ? "text-xs leading-5" : "text-sm leading-6"
           }`}
           style={
@@ -93,7 +93,7 @@ export default function ProductCard({
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-600"
+              className="rounded-sm border border-border px-3 py-1 text-xs font-medium text-muted-foreground"
             >
               {tag}
             </span>
@@ -101,13 +101,13 @@ export default function ProductCard({
         </div>
 
         <CardFooter
-          className={`flex items-center justify-between border-t border-stone-100 px-0 pb-0 ${
+          className={`flex items-center justify-between border-t border-border px-0 pb-0 ${
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
           }`}
         >
-          <span className="text-sm font-medium text-stone-500">Sample</span>
+          <span className="text-sm font-medium text-muted-foreground">Sample</span>
           <span
-            className={`font-bold text-stone-950 ${
+            className={`font-bold text-foreground ${
               compact ? "text-base" : "text-lg"
             }`}
           >
@@ -126,7 +126,7 @@ export default function ProductCard({
     <Link
       href={href}
       aria-label={`View details for ${name}`}
-      className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#24786b] focus-visible:ring-offset-2"
+      className="block h-full rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {card}
     </Link>

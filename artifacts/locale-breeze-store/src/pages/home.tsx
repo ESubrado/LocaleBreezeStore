@@ -72,24 +72,24 @@ export default function Home() {
       />
       <Navigation />
 
-      <main className="bg-[#f7faf7] text-stone-950">
-        <section className="relative isolate flex min-h-[72svh] items-center overflow-hidden">
+      <main className="bg-background text-foreground">
+        <section className="relative isolate flex min-h-[72svh] items-center overflow-hidden bg-slate-950">
           <img
             src="/locale-breeze-general-store-hero.png"
             alt="Books, notebooks, pens, ink, a calculator, cables, adapters, and computer parts arranged on a bright store counter"
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center]"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[64%_center] opacity-60"
           />
-          <div className="absolute inset-0 -z-10 bg-white/62" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/40" />
 
           <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
             <div className="max-w-2xl">
-              <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-[#24786b]">
+              <p className="mb-5 text-sm font-semibold uppercase tracking-normal text-blue-400">
                 Everyday essentials, digital and print
               </p>
-              <h1 className="text-5xl font-bold leading-tight text-stone-950 sm:text-6xl lg:text-7xl">
+              <h1 className="text-5xl font-bold leading-tight text-white sm:text-6xl lg:text-7xl">
                 Locale Breeze Store
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-stone-700">
+              <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">
                 A flexible neighborhood-style store for digital products, print
                 materials, study tools, office supplies, computer basics, and
                 useful day-to-day finds.
@@ -103,10 +103,10 @@ export default function Home() {
           className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-16"
         >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-normal text-[#24786b]">
+            <p className="text-sm font-semibold uppercase tracking-normal text-primary">
               Store focus
             </p>
-            <h2 className="mt-3 text-3xl font-bold text-stone-950 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
               One store shape for useful products in many formats.
             </h2>
           </div>
@@ -115,15 +115,15 @@ export default function Home() {
             {storePillars.map((pillar) => (
               <Card
                 key={pillar.title}
-                className="h-full gap-3 rounded-lg border-stone-200 bg-white py-5 shadow-sm"
+                className="h-full gap-3 rounded-md border-border bg-card py-5 shadow-sm"
               >
                 <CardHeader className="px-5">
-                  <CardTitle className="text-lg text-stone-950">
+                  <CardTitle className="text-lg text-foreground">
                     {pillar.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-5">
-                  <CardDescription className="text-sm leading-6 text-stone-600">
+                  <CardDescription className="text-sm leading-6 text-muted-foreground">
                     {pillar.description}
                   </CardDescription>
                 </CardContent>
@@ -134,18 +134,18 @@ export default function Home() {
 
         {!isLoading && <TopProductsCarousel products={topProducts} />}
 
-        <section id="store-promise" className="border-t border-stone-200 bg-white">
+        <section id="store-promise" className="border-t border-border bg-card">
           <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:py-16">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-normal text-[#b15a2b]">
+              <p className="text-sm font-semibold uppercase tracking-normal text-primary">
                 Store promise
               </p>
-              <h2 className="mt-3 text-3xl font-bold text-stone-950">
+              <h2 className="mt-3 text-3xl font-bold text-foreground">
                 Simple, adaptable, and practical.
               </h2>
             </div>
 
-            <div className="space-y-5 text-base leading-8 text-stone-700">
+            <div className="space-y-5 text-base leading-8 text-muted-foreground">
               <p>
                 Locale Breeze Store is designed to feel clear and useful first:
                 easy to understand, ready for both digital and physical

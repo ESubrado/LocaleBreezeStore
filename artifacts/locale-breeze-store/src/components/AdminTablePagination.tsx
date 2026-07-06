@@ -23,13 +23,13 @@ export default function AdminTablePagination({
   const end = Math.min(page * pageSize, totalCount);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-stone-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-stone-600">
+    <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-muted-foreground">
         Showing {start}-{end} of {totalCount}
       </p>
 
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-stone-600">
+        <span className="text-sm font-medium text-muted-foreground">
           Page {page} of {pageCount}
         </span>
         <div className="flex items-center gap-2">

@@ -1,1 +1,2 @@
 - [Next.js-to-Vite migration gotchas](nextjs-to-vite-migration.md) — shadcn "radix-ui" bare-package imports and copied `Slot.Root` code need fixing after removing that meta package.
+- [Theme token restyle approach](theme-token-restyle.md) — full color reskins need both CSS variable edits and a grep sweep for hardcoded hex/neutral-scale classes across pages and ui/* primitives.

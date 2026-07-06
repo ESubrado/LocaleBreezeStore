@@ -65,22 +65,22 @@ export default function Navigation() {
   }, [updateActivePill]);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
+    <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950">
       <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
-          className="font-sans text-base font-semibold text-stone-950 sm:text-lg"
+          className="font-sans text-base font-semibold tracking-tight text-white sm:text-lg"
         >
           Locale Breeze Store
         </Link>
 
         <div
           ref={navListRef}
-          className="relative flex items-center gap-1 rounded-full border border-stone-200 bg-white p-1"
+          className="relative flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 p-1"
         >
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-1 left-0 rounded-full bg-stone-950 shadow-sm transition-[transform,width,opacity] duration-300 ease-out"
+            className="pointer-events-none absolute inset-y-1 left-0 rounded-sm bg-blue-600 transition-[transform,width,opacity] duration-300 ease-out"
             style={{
               opacity: activePill.opacity,
               transform: `translateX(${activePill.left}px)`,
@@ -98,10 +98,10 @@ export default function Navigation() {
                   linkRefs.current[link.href] = node;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                className={`relative z-10 rounded-sm px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   isActive
                     ? "text-white"
-                    : "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
                 {link.label}
