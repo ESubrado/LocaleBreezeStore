@@ -40,17 +40,17 @@ export default function AdminProductsTable({
   }, [currentPage, products]);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-4 border-b border-stone-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-stone-950">Products</h3>
-        <span className="text-xs font-medium text-stone-500">
+    <div className="overflow-hidden rounded-lg bg-white/5 ring-1 ring-white/10">
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3">
+        <h3 className="text-sm font-semibold text-foreground">Products</h3>
+        <span className="text-xs font-medium text-slate-400">
           {formatProductCount(products.length)}
         </span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1160px] text-left text-sm">
-          <thead className="bg-[#fbfcf8] text-xs font-semibold uppercase tracking-normal text-stone-500">
+          <thead className="bg-white/5 text-xs font-semibold uppercase tracking-normal text-slate-400">
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">SKU</th>
@@ -62,62 +62,62 @@ export default function AdminProductsTable({
               <th className="px-4 py-3">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-white/10">
             {visibleProducts.length > 0 ? (
               visibleProducts.map((product) => (
                 <tr key={product.id} className="align-top">
                   <td className="max-w-sm px-4 py-4">
-                    <span className="block font-semibold text-stone-950">
+                    <span className="block font-semibold text-foreground">
                       {product.name}
                     </span>
-                    <span className="mt-1 block text-xs font-medium text-stone-500">
+                    <span className="mt-1 block text-xs font-medium text-slate-500">
                       #{product.id} - {product.slug} - Order{" "}
                       {product.displayOrder}
                     </span>
-                    <span className="mt-1 line-clamp-2 block text-sm leading-6 text-stone-600">
+                    <span className="mt-1 line-clamp-2 block text-sm leading-6 text-slate-400">
                       {product.description}
                     </span>
                   </td>
                   <td className="px-4 py-4">
                     {product.sku ? (
-                      <code className="rounded-md bg-[#f7faf7] px-2 py-1 text-xs font-medium text-stone-700">
+                      <code className="rounded-md bg-white/10 px-2 py-1 text-xs font-medium text-slate-200">
                         {product.sku}
                       </code>
                     ) : (
-                      <span className="text-stone-500">None</span>
+                      <span className="text-slate-500">None</span>
                     )}
                   </td>
-                  <td className="px-4 py-4 text-stone-700">
-                    <span className="block font-medium text-stone-950">
+                  <td className="px-4 py-4 text-slate-300">
+                    <span className="block font-medium text-slate-200">
                       {product.category}
                     </span>
-                    <span className="mt-1 block text-xs text-stone-500">
+                    <span className="mt-1 block text-xs text-slate-500">
                       {product.format} - {product.fulfillmentType}
                     </span>
-                    <span className="mt-1 block text-xs text-stone-500">
+                    <span className="mt-1 block text-xs text-slate-500">
                       Catalog {product.catalogId ?? "None"}
                     </span>
                   </td>
-                  <td className="px-4 py-4 font-medium text-stone-950">
+                  <td className="px-4 py-4 font-medium text-foreground">
                     {product.price}
                   </td>
-                  <td className="px-4 py-4 text-stone-700">
+                  <td className="px-4 py-4 text-slate-300">
                     {formatInventory(product.stockQuantity)}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-2">
                       {product.isFeatured && (
-                        <span className="inline-flex rounded-full bg-[#b15a2b]/10 px-2 py-1 text-xs font-semibold text-[#b15a2b]">
+                        <span className="inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">
                           Featured
                         </span>
                       )}
                       {product.isSample && (
-                        <span className="inline-flex rounded-full bg-stone-100 px-2 py-1 text-xs font-semibold text-stone-600">
+                        <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-slate-400">
                           Sample
                         </span>
                       )}
                       {!product.isFeatured && !product.isSample && (
-                        <span className="text-sm text-stone-500">None</span>
+                        <span className="text-sm text-slate-500">None</span>
                       )}
                     </div>
                   </td>
@@ -125,14 +125,14 @@ export default function AdminProductsTable({
                     <span
                       className={
                         product.isActive
-                          ? "inline-flex rounded-full bg-[#24786b]/10 px-2 py-1 text-xs font-semibold text-[#24786b]"
-                          : "inline-flex rounded-full bg-stone-100 px-2 py-1 text-xs font-semibold text-stone-500"
+                          ? "inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-300"
+                          : "inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-slate-400"
                       }
                     >
                       {product.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-stone-700">
+                  <td className="px-4 py-4 text-slate-300">
                     {formatDate(product.updatedAt)}
                   </td>
                 </tr>
@@ -141,7 +141,7 @@ export default function AdminProductsTable({
               <tr>
                 <td
                   colSpan={8}
-                  className="px-4 py-8 text-center text-sm text-stone-500"
+                  className="px-4 py-8 text-center text-sm text-slate-400"
                 >
                   No product rows available.
                 </td>
