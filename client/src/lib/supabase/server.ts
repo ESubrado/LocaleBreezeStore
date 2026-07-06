@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseServerConfig } from "@/lib/supabase";
+import { toBrowserSessionCookieOptions } from "@/lib/supabase/sessionCookies";
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
@@ -14,7 +15,11 @@ export async function createServerSupabaseClient() {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
+            cookieStore.set(
+              name,
+              value,
+              toBrowserSessionCookieOptions(value, options),
+            );
           });
         } catch {
           // Server Components cannot always write cookies directly. The proxy

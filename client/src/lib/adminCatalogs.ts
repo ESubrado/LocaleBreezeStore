@@ -99,8 +99,19 @@ function getCatalogImagePath(slug: string, imageUrl: string | null | undefined) 
   }
 
   const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
+  const imagePathSegments = normalizedImageUrl
+    .split("/")
+    .filter((segment) => segment.length > 0);
+  const normalizedPathSegments =
+    imagePathSegments[0] === "catalog-images"
+      ? imagePathSegments.slice(1)
+      : imagePathSegments;
+  const objectPathSegments =
+    normalizedPathSegments[0] === slug
+      ? normalizedPathSegments
+      : [slug, ...normalizedPathSegments];
 
-  return ["catalog-images", slug, ...normalizedImageUrl.split("/")].join("/");
+  return ["catalog-images", ...objectPathSegments].join("/");
 }
 
 function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {

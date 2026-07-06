@@ -221,16 +221,26 @@ function resolveStorageImageUrl(
   pathSegments: string[],
   imageUrl: string,
 ) {
-  const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
-
   if (isAbsoluteImageUrl(imageUrl)) {
     return imageUrl;
   }
 
+  const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
+  const imagePathSegments = normalizedImageUrl
+    .split("/")
+    .filter((segment) => segment.length > 0);
+  const normalizedPathSegments =
+    imagePathSegments[0] === bucketName
+      ? imagePathSegments.slice(1)
+      : imagePathSegments;
+  const objectPathSegments = pathSegments.every(
+    (segment, index) => normalizedPathSegments[index] === segment,
+  )
+    ? normalizedPathSegments
+    : [...pathSegments, ...normalizedPathSegments];
+
   const { supabaseUrl } = getSupabaseServerConfig();
-  const objectPath = [...pathSegments, ...normalizedImageUrl.split("/")]
-    .map(encodeURIComponent)
-    .join("/");
+  const objectPath = objectPathSegments.map(encodeURIComponent).join("/");
 
   return `${supabaseUrl}/storage/v1/object/public/${bucketName}/${objectPath}`;
 }

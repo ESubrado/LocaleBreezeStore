@@ -2,6 +2,11 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import {
+  clearAdminBrowserSession,
+  hasActiveAdminBrowserSession,
+  setAdminBrowserSession,
+} from "@/lib/supabase/sessionCookies";
 
 export type AdminSession = {
   email: string;
@@ -39,6 +44,11 @@ function mapSupabaseSession(session: Session | null): AdminSession | null {
 }
 
 export async function getAdminSession() {
+  if (!hasActiveAdminBrowserSession()) {
+    await clearLocalAdminSession();
+    return null;
+  }
+
   const supabase = createBrowserSupabaseClient();
 
   // Client-side getSession is only for showing the nav state. The /admin page
@@ -60,8 +70,16 @@ export function onAdminAuthStateChange(
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (!session) {
+      clearAdminBrowserSession();
+      callback(null);
+      return;
+    }
+
     // Normalize every auth event before it reaches React state.
-    callback(mapSupabaseSession(session));
+    callback(
+      hasActiveAdminBrowserSession() ? mapSupabaseSession(session) : null,
+    );
   });
 
   return () => subscription.unsubscribe();
@@ -81,6 +99,8 @@ export async function signInAdmin(email: string, password: string) {
     };
   }
 
+  setAdminBrowserSession();
+
   return {
     error: "",
     session: mapSupabaseSession(data.session),
@@ -90,8 +110,16 @@ export async function signInAdmin(email: string, password: string) {
 export async function signOutAdmin() {
   const supabase = createBrowserSupabaseClient();
   const { error } = await supabase.auth.signOut();
+  clearAdminBrowserSession();
 
   return {
     error: error?.message ?? "",
   };
+}
+
+export async function clearLocalAdminSession() {
+  const supabase = createBrowserSupabaseClient();
+
+  await supabase.auth.signOut({ scope: "local" });
+  clearAdminBrowserSession();
 }

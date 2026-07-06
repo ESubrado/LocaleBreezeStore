@@ -17,7 +17,7 @@ export function getSupabaseServerConfig() {
   }
 
   return {
-    supabaseUrl,
+    supabaseUrl: supabaseUrl.replace(/\/+$/, ""),
     supabaseAnonKey,
   };
 }

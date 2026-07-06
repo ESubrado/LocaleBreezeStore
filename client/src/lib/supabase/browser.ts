@@ -2,6 +2,10 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  getBrowserSupabaseCookies,
+  setBrowserSupabaseCookies,
+} from "@/lib/supabase/sessionCookies";
 
 let browserClient: SupabaseClient | null = null;
 
@@ -30,9 +34,14 @@ export function createBrowserSupabaseClient() {
 
   const { supabaseUrl, supabaseAnonKey } = getSupabaseBrowserConfig();
 
-  // createBrowserClient stores auth state in cookies so server components and
-  // the browser agree about who is signed in.
-  browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey);
+  // Store auth state in browser-session cookies so server components and the
+  // browser agree, but closing the browser drops the admin session.
+  browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll: getBrowserSupabaseCookies,
+      setAll: setBrowserSupabaseCookies,
+    },
+  });
 
   return browserClient;
 }

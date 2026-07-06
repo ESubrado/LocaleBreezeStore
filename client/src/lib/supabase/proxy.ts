@@ -1,6 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseServerConfig } from "@/lib/supabase";
+import {
+  ADMIN_BROWSER_SESSION_COOKIE,
+  isAdminBrowserSessionCookieValue,
+  toBrowserSessionCookieOptions,
+} from "@/lib/supabase/sessionCookies";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -8,6 +13,20 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { supabaseUrl, supabaseAnonKey } = getSupabaseServerConfig();
+  const isAdminRoute =
+    request.nextUrl.pathname === "/admin" ||
+    request.nextUrl.pathname.startsWith("/admin/");
+  const hasAdminBrowserSession = isAdminBrowserSessionCookieValue(
+    request.cookies.get(ADMIN_BROWSER_SESSION_COOKIE)?.value,
+  );
+
+  if (isAdminRoute && !hasAdminBrowserSession) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/";
+    redirectUrl.searchParams.set("admin", "login-required");
+
+    return NextResponse.redirect(redirectUrl);
+  }
 
   // Always create this client per request. It reads incoming auth cookies and
   // writes any refreshed cookies back to the response below.
@@ -26,7 +45,11 @@ export async function updateSession(request: NextRequest) {
         });
 
         cookiesToSet.forEach(({ name, value, options }) => {
-          supabaseResponse.cookies.set(name, value, options);
+          supabaseResponse.cookies.set(
+            name,
+            value,
+            toBrowserSessionCookieOptions(value, options),
+          );
         });
 
         Object.entries(headers).forEach(([key, value]) => {
@@ -39,9 +62,6 @@ export async function updateSession(request: NextRequest) {
   // Keep this call immediately after createServerClient. Supabase uses it to
   // validate/refresh auth cookies before protected Server Components render.
   const { data, error } = await supabase.auth.getClaims();
-  const isAdminRoute =
-    request.nextUrl.pathname === "/admin" ||
-    request.nextUrl.pathname.startsWith("/admin/");
 
   if (isAdminRoute && (error || !data?.claims)) {
     const redirectUrl = request.nextUrl.clone();
