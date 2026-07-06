@@ -100,35 +100,45 @@ export default function Home() {
 
         <section
           id="store-focus"
-          className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-16"
+          className="relative overflow-hidden border-y border-border bg-background"
         >
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-normal text-primary">
-              Store focus
-            </p>
-            <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
-              One store shape for useful products in many formats.
-            </h2>
-          </div>
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(hsl(var(--border))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--border))_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,black_40%,transparent_100%)]"
+            aria-hidden="true"
+          />
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            {storePillars.map((pillar) => (
-              <Card
-                key={pillar.title}
-                className="h-full gap-3 rounded-md border-border bg-card py-5 shadow-sm"
-              >
-                <CardHeader className="px-5">
-                  <CardTitle className="text-lg text-foreground">
-                    {pillar.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-5">
-                  <CardDescription className="text-sm leading-6 text-muted-foreground">
-                    {pillar.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
+            <div>
+              <p className="flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-normal text-primary">
+                <span className="text-primary/50">//</span> Store focus
+              </p>
+              <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
+                One store shape for useful products in many formats.
+              </h2>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {storePillars.map((pillar, index) => (
+                <Card
+                  key={pillar.title}
+                  className="hover-elevate h-full gap-3 rounded-sm border-l-2 border-y-0 border-r-0 border-border border-l-primary bg-card py-5 shadow-sm"
+                >
+                  <CardHeader className="px-5">
+                    <span className="font-mono text-xs font-semibold tracking-normal text-primary/60">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <CardTitle className="text-lg text-foreground">
+                      {pillar.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5">
+                    <CardDescription className="text-sm leading-6 text-muted-foreground">
+                      {pillar.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
