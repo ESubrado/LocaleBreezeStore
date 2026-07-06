@@ -8,7 +8,6 @@ import SiteFooter from "@/components/SiteFooter";
 import SupabaseDataDebug from "@/components/SupabaseDataDebug";
 import { getFeaturedProducts, type Product } from "@/lib/products";
 import heroTechBg from "@/assets/hero-tech-bg.png";
-import pillarsBg from "@/assets/pillars-bg.png";
 import "@/styles/fluid-theme.css";
 
 const storePillars = [
@@ -170,13 +169,8 @@ export default function Home() {
         </section>
 
         {/* Philosophy Ribbon */}
-        <section id="store-focus" className="isolate relative z-20 overflow-hidden px-5 py-24 sm:px-8 lg:py-32">
-          <div
-            className="absolute inset-0 -z-20 bg-cover bg-center opacity-30"
-            style={{ backgroundImage: `url(${pillarsBg})` }}
-          />
-          <div className="absolute inset-0 -z-20 bg-gradient-to-b from-slate-950/50 via-slate-950/70 to-slate-950" />
-          <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-3">
+        <section id="store-focus" className="relative z-20 mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
+          <div className="grid gap-16 lg:grid-cols-3">
             {storePillars.map((pillar, idx) => (
               <motion.div
                 key={pillar.title}
