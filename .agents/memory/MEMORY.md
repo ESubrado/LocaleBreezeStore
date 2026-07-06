@@ -1,0 +1,1 @@
+- [Next.js-to-Vite migration gotchas](nextjs-to-vite-migration.md) — shadcn "radix-ui" bare-package imports and copied `Slot.Root` code need fixing after removing that meta package.
