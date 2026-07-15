@@ -10,6 +10,16 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
+# These public values are compiled into the browser bundle. Defaults keep a
+# local image build independent of AWS or any other deployment configuration.
+# Pass the real public Supabase values with --build-arg when building an image
+# that needs browser-based Supabase authentication.
+ARG NEXT_PUBLIC_SUPABASE_URL=https://example.invalid
+ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=build-time-placeholder
+ARG NEXT_PUBLIC_SUPABASE_DEBUG=false
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_SUPABASE_DEBUG=$NEXT_PUBLIC_SUPABASE_DEBUG
 RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
