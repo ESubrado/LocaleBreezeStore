@@ -14,6 +14,7 @@ import type { CartItem, CartProduct, CartTotal } from "@/lib/cart";
 const storageKey = "locale-breeze-guest-cart-v1";
 
 type AddItemResult = "added" | "limit-reached" | "unavailable";
+type SetItemQuantityResult = "updated" | "limit-reached" | "removed";
 
 type CartContextValue = {
   items: CartItem[];
@@ -21,7 +22,10 @@ type CartContextValue = {
   isReady: boolean;
   totals: CartTotal[];
   addItem: (product: CartProduct) => AddItemResult;
-  setItemQuantity: (productId: number, quantity: number) => void;
+  setItemQuantity: (
+    productId: number,
+    quantity: number,
+  ) => SetItemQuantityResult;
   removeItem: (productId: number) => void;
   clearCart: () => void;
   getItemQuantity: (productId: number) => number;
@@ -49,6 +53,11 @@ function isCartItem(value: unknown): value is CartItem {
       (typeof item.quantity === "number" &&
         Number.isInteger(item.quantity) &&
         item.quantity >= 0)) &&
+    (item.lowStockThreshold === undefined ||
+      item.lowStockThreshold === null ||
+      (typeof item.lowStockThreshold === "number" &&
+        Number.isInteger(item.lowStockThreshold) &&
+        item.lowStockThreshold >= 0)) &&
     typeof item.cartQuantity === "number" &&
     Number.isInteger(item.cartQuantity) &&
     item.cartQuantity > 0
@@ -149,7 +158,18 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const setItemQuantity = useCallback(
-    (productId: number, quantity: number) => {
+    (productId: number, quantity: number): SetItemQuantityResult => {
+      const currentItem = items.find((item) => item.id === productId);
+      const requestedQuantity = Math.max(0, Math.floor(quantity));
+
+      if (
+        currentItem?.quantity !== null &&
+        currentItem?.quantity !== undefined &&
+        requestedQuantity > currentItem.quantity
+      ) {
+        return "limit-reached";
+      }
+
       setItems((currentItems) =>
         currentItems.flatMap((item) => {
           if (item.id !== productId) {
@@ -167,8 +187,10 @@ export default function CartProvider({ children }: { children: ReactNode }) {
             : [];
         }),
       );
+
+      return requestedQuantity === 0 ? "removed" : "updated";
     },
-    [],
+    [items],
   );
 
   const removeItem = useCallback((productId: number) => {

@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { useCart } from "@/components/CartProvider";
+import InventoryStatus from "@/components/InventoryStatus";
 import Navigation from "@/components/Navigation";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -28,6 +30,16 @@ export default function CartPage() {
     setItemQuantity,
     totals,
   } = useCart();
+
+  const handleIncrease = (item: (typeof items)[number]) => {
+    const result = setItemQuantity(item.id, item.cartQuantity + 1);
+
+    if (result === "limit-reached") {
+      toast.warning(
+        `Only ${item.quantity} available. You cannot add more ${item.name} items.`,
+      );
+    }
+  };
 
   return (
     <>
@@ -59,7 +71,7 @@ export default function CartPage() {
           </div>
 
           {!isReady ? (
-            <p className="mt-10 text-slate-400">Loading your cart…</p>
+            <p className="mt-10 text-slate-400">Loading your cart...</p>
           ) : items.length === 0 ? (
             <section className="mt-10 rounded-xl bg-white/5 p-8 text-center ring-1 ring-white/10 sm:p-12">
               <ShoppingBag className="mx-auto size-8 text-blue-400" aria-hidden="true" />
@@ -85,10 +97,6 @@ export default function CartPage() {
               >
                 <ul className="divide-y divide-white/10">
                   {items.map((item) => {
-                    const atQuantityLimit =
-                      item.quantity !== null &&
-                      item.cartQuantity >= item.quantity;
-
                     return (
                       <li
                         key={item.id}
@@ -110,11 +118,11 @@ export default function CartPage() {
                           <p className="mt-1 text-sm text-slate-400">
                             {formatMoney(item.priceAmount, item.currency)} each
                           </p>
-                          {item.quantity !== null ? (
-                            <p className="mt-1 text-xs text-slate-500">
-                              {item.quantity} available
-                            </p>
-                          ) : null}
+                          <InventoryStatus
+                            quantity={item.quantity}
+                            lowStockThreshold={item.lowStockThreshold}
+                            className="mt-2"
+                          />
                         </div>
                         <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
                           <div className="inline-flex items-center rounded-full border border-white/10 bg-black/20 p-1">
@@ -133,12 +141,9 @@ export default function CartPage() {
                             </span>
                             <button
                               type="button"
-                              onClick={() =>
-                                setItemQuantity(item.id, item.cartQuantity + 1)
-                              }
-                              disabled={atQuantityLimit}
+                              onClick={() => handleIncrease(item)}
                               aria-label={`Increase ${item.name} quantity`}
-                              className="inline-flex size-8 items-center justify-center rounded-full text-slate-300 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:cursor-not-allowed disabled:text-slate-600"
+                              className="inline-flex size-8 items-center justify-center rounded-full text-slate-300 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                             >
                               <Plus className="size-4" aria-hidden="true" />
                             </button>

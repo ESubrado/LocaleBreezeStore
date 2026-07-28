@@ -6,6 +6,7 @@ export type CartProduct = {
   imageUrl: string;
   imageAlt: string;
   quantity: number | null;
+  lowStockThreshold?: number | null;
 };
 
 export type CartItem = CartProduct & {

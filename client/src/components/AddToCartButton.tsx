@@ -16,8 +16,6 @@ export default function AddToCartButton({
   const { addItem, getItemQuantity, isReady } = useCart();
   const cartQuantity = getItemQuantity(product.id);
   const isOutOfStock = product.quantity === 0;
-  const hasReachedQuantityLimit =
-    product.quantity !== null && cartQuantity >= product.quantity;
 
   const handleAddToCart = () => {
     const result = addItem(product);
@@ -27,10 +25,13 @@ export default function AddToCartButton({
       return;
     }
 
-    toast.error(
-      result === "unavailable"
-        ? `${product.name} is currently unavailable.`
-        : `All available ${product.name} items are already in your cart.`,
+    if (result === "unavailable") {
+      toast.error(`${product.name} is currently unavailable.`);
+      return;
+    }
+
+    toast.warning(
+      `Only ${product.quantity} available. Your cart already contains ${cartQuantity}.`,
     );
   };
 
@@ -38,15 +39,13 @@ export default function AddToCartButton({
     <button
       type="button"
       onClick={handleAddToCart}
-      disabled={!isReady || isOutOfStock || hasReachedQuantityLimit}
+      disabled={!isReady || isOutOfStock}
       className={`inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-slate-950 transition hover:bg-blue-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300 ${className}`}
     >
       <ShoppingCart className="size-4" aria-hidden="true" />
       {isOutOfStock
         ? "Unavailable"
-        : hasReachedQuantityLimit
-          ? "Cart full"
-          : "Add to cart"}
+        : "Add to cart"}
     </button>
   );
 }

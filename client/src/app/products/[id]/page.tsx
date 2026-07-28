@@ -20,6 +20,7 @@ import {
 import productDetailTechBg from "@/app/assets/product-detail-tech-bg.png";
 import MotionReveal from "@/components/MotionReveal";
 import AddToCartButton from "@/components/AddToCartButton";
+import InventoryStatus from "@/components/InventoryStatus";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
@@ -138,6 +139,11 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
               <p className="mt-6 max-w-2xl text-base leading-8 text-slate-400">
                 {product.description}
               </p>
+              <InventoryStatus
+                quantity={product.quantity}
+                lowStockThreshold={product.lowStockThreshold}
+                className="mt-4"
+              />
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <AddToCartButton
@@ -148,6 +154,7 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
                   imageUrl={product.imageUrl}
                   imageAlt={product.imageAlt}
                   quantity={product.quantity}
+                  lowStockThreshold={product.lowStockThreshold}
                 />
                 <Button
                   asChild

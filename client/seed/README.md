@@ -5,6 +5,8 @@ The app is wired to read from two public tables:
 - `catalogs`
 - `products`
 
+It also keeps private inventory history in `inventory_movements`.
+
 Use `schema.sql` first if those tables do not exist yet. Use `seed.sql` after
 that if you want the database to contain the same sample data the app previously
 kept in the app source.
@@ -24,6 +26,10 @@ kept in the app source.
 - Do not put a `service_role` key in a `NEXT_PUBLIC_*` environment variable.
 - The read policies in `schema.sql` allow anonymous visitors to read only rows
   where `is_active = true`.
+- `inventory_movements` has row level security enabled with no public policy.
+  The seed creates one `opening_balance` movement for every tracked physical
+  product. Future restocks, sales, returns, and corrections should add new
+  movement rows instead of editing history.
 - Catalog `image_url` values store a filename or absolute image URL. Filename
   values are loaded from the public Supabase Storage bucket named
   `catalog-images` under `<catalog-slug>/<filename>`.

@@ -102,7 +102,16 @@ export default function AdminProductsTable({
                     {product.price}
                   </td>
                   <td className="px-4 py-4 text-slate-300">
-                    {formatInventory(product.stockQuantity)}
+                    <span className="block">
+                      {formatInventory(product.stockQuantity)}
+                    </span>
+                    {product.stockQuantity !== null ? (
+                      <span className="mt-1 block text-xs leading-5 text-slate-500">
+                        Low at {product.lowStockThreshold ?? "default"} · Reorder
+                        at {product.reorderPoint ?? "not set"} · Refill{" "}
+                        {product.reorderQuantity ?? "not set"}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-2">

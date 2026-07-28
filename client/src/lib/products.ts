@@ -41,6 +41,9 @@ type ProductRow = {
   tags: Json | null;
   stock_quantity: number | null;
   quantity: number | null;
+  low_stock_threshold: number | null;
+  reorder_point: number | null;
+  reorder_quantity: number | null;
   is_featured: boolean;
   is_sample: boolean;
   catalog_id: number | null;
@@ -78,6 +81,9 @@ export type Product = {
   tags: string[];
   stockQuantity: number | null;
   quantity: number | null;
+  lowStockThreshold: number | null;
+  reorderPoint: number | null;
+  reorderQuantity: number | null;
   isFeatured: boolean;
   isSample: boolean;
   catalogId: number | null;
@@ -147,6 +153,9 @@ const productColumns = `
   tags,
   stock_quantity,
   quantity,
+  low_stock_threshold,
+  reorder_point,
+  reorder_quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -170,6 +179,9 @@ const legacyProductColumns = `
   tags,
   stock_quantity,
   quantity,
+  low_stock_threshold,
+  reorder_point,
+  reorder_quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -192,6 +204,9 @@ const baseProductColumns = `
   tags,
   stock_quantity,
   quantity,
+  low_stock_threshold,
+  reorder_point,
+  reorder_quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -350,6 +365,9 @@ function mapProductRow(row: ProductRow): Product {
     tags: toStringArray(row.tags),
     stockQuantity: row.quantity ?? row.stock_quantity,
     quantity: row.quantity,
+    lowStockThreshold: row.low_stock_threshold,
+    reorderPoint: row.reorder_point,
+    reorderQuantity: row.reorder_quantity,
     isFeatured: row.is_featured,
     isSample: row.is_sample,
     catalogId: row.catalog_id,

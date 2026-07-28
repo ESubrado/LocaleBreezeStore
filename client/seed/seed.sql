@@ -96,6 +96,9 @@ insert into public.products (
   tags,
   stock_quantity,
   quantity,
+  low_stock_threshold,
+  reorder_point,
+  reorder_quantity,
   is_featured,
   is_sample,
   is_active,
@@ -127,6 +130,9 @@ insert into public.products (
     'Calculator and notebooks representing a budget workbook',
     '72% 65%',
     '["Download", "Printable", "Business"]'::jsonb,
+    null,
+    null,
+    null,
     null,
     null,
     true,
@@ -162,6 +168,9 @@ insert into public.products (
     '["Reference", "Beginner", "Tech"]'::jsonb,
     40,
     40,
+    10,
+    10,
+    20,
     true,
     true,
     true,
@@ -195,6 +204,9 @@ insert into public.products (
     '["Desk", "School", "Office"]'::jsonb,
     24,
     24,
+    8,
+    8,
+    16,
     false,
     true,
     true,
@@ -227,6 +239,9 @@ insert into public.products (
     '62% 79%',
     '["Ink", "Print", "Refill"]'::jsonb,
     18,
+    18,
+    6,
+    6,
     18,
     true,
     true,
@@ -261,6 +276,9 @@ insert into public.products (
     '["Writing", "Notes", "Daily use"]'::jsonb,
     64,
     64,
+    12,
+    12,
+    36,
     false,
     true,
     true,
@@ -294,6 +312,9 @@ insert into public.products (
     '["USB-C", "Cable", "Adapter"]'::jsonb,
     31,
     31,
+    8,
+    8,
+    20,
     true,
     true,
     true,
@@ -327,6 +348,9 @@ insert into public.products (
     '["Keyboard", "Repair", "Parts"]'::jsonb,
     28,
     28,
+    8,
+    8,
+    16,
     false,
     true,
     true,
@@ -360,6 +384,9 @@ insert into public.products (
     '["Download", "Planner", "School"]'::jsonb,
     null,
     null,
+    null,
+    null,
+    null,
     true,
     true,
     true,
@@ -382,11 +409,44 @@ on conflict (slug) do update set
   tags = excluded.tags,
   stock_quantity = excluded.stock_quantity,
   quantity = excluded.quantity,
+  low_stock_threshold = excluded.low_stock_threshold,
+  reorder_point = excluded.reorder_point,
+  reorder_quantity = excluded.reorder_quantity,
   is_featured = excluded.is_featured,
   is_sample = excluded.is_sample,
   is_active = excluded.is_active,
   display_order = excluded.display_order,
   catalog_id = excluded.catalog_id;
+
+-- Opening balances establish the initial stock history for tracked physical
+-- products. This upsert keeps the development seed safe to run repeatedly.
+insert into public.inventory_movements (
+  product_id,
+  quantity_change,
+  reason,
+  note,
+  source_reference
+)
+select
+  products.id,
+  opening_balance.quantity_change,
+  'opening_balance',
+  'Initial quantity established by the development seed.',
+  'seed-opening-balance'
+from (
+  values
+    ('computer-basics-field-guide', 40),
+    ('everyday-desk-calculator', 24),
+    ('refill-ink-starter-pack', 18),
+    ('precision-pen-set', 64),
+    ('usb-c-adapter-kit', 31),
+    ('keyboard-repair-bits', 28)
+) as opening_balance(slug, quantity_change)
+join public.products as products
+  on products.slug = opening_balance.slug
+on conflict (product_id, reason, source_reference) do update set
+  quantity_change = excluded.quantity_change,
+  note = excluded.note;
 
 -- Keep future generated IDs higher than the seeded sample IDs.
 select setval(pg_get_serial_sequence('public.catalogs', 'id'), 4, true);

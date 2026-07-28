@@ -15,6 +15,9 @@ type AdminProductRow = {
   currency: string;
   stock_quantity: number | null;
   quantity: number | null;
+  low_stock_threshold: number | null;
+  reorder_point: number | null;
+  reorder_quantity: number | null;
   is_featured: boolean;
   is_sample: boolean;
   is_active: boolean;
@@ -34,6 +37,9 @@ export type AdminProduct = {
   fulfillmentType: string;
   price: string;
   stockQuantity: number | null;
+  lowStockThreshold: number | null;
+  reorderPoint: number | null;
+  reorderQuantity: number | null;
   isFeatured: boolean;
   isSample: boolean;
   isActive: boolean;
@@ -55,6 +61,9 @@ const adminProductColumns = `
   currency,
   stock_quantity,
   quantity,
+  low_stock_threshold,
+  reorder_point,
+  reorder_quantity,
   is_featured,
   is_sample,
   is_active,
@@ -92,6 +101,9 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
     stockQuantity: row.quantity ?? row.stock_quantity,
+    lowStockThreshold: row.low_stock_threshold,
+    reorderPoint: row.reorder_point,
+    reorderQuantity: row.reorder_quantity,
     isFeatured: row.is_featured,
     isSample: row.is_sample,
     isActive: row.is_active,

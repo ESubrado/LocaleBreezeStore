@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/components/CartProvider";
+import InventoryStatus from "@/components/InventoryStatus";
 import type { CartProduct } from "@/lib/cart";
 
 export type ProductCardProps = CartProduct & {
@@ -39,6 +40,7 @@ export default function ProductCard({
   imagePosition = "center",
   tags,
   quantity,
+  lowStockThreshold,
   compact = false,
   href,
 }: ProductCardProps) {
@@ -47,8 +49,6 @@ export default function ProductCard({
   const defaultImageUrl = imageUrls?.[0] ?? imageUrl ?? fallbackProductImage;
   const cartQuantity = getItemQuantity(id);
   const isOutOfStock = quantity === 0;
-  const hasReachedQuantityLimit =
-    quantity !== null && cartQuantity >= quantity;
 
   const handleAddToCart = () => {
     const result = addItem({
@@ -59,6 +59,7 @@ export default function ProductCard({
       imageUrl: defaultImageUrl,
       imageAlt,
       quantity,
+      lowStockThreshold,
     });
 
     if (result === "added") {
@@ -66,10 +67,13 @@ export default function ProductCard({
       return;
     }
 
-    toast.error(
-      result === "unavailable"
-        ? `${name} is currently unavailable.`
-        : `All available ${name} items are already in your cart.`,
+    if (result === "unavailable") {
+      toast.error(`${name} is currently unavailable.`);
+      return;
+    }
+
+    toast.warning(
+      `Only ${quantity} available. Your cart already contains ${cartQuantity}.`,
     );
   };
 
@@ -166,6 +170,12 @@ export default function ProductCard({
           ))}
         </div>
 
+        <InventoryStatus
+          quantity={quantity}
+          lowStockThreshold={lowStockThreshold}
+          className={compact ? "mt-3" : "mt-5"}
+        />
+
         <div
           className={`flex items-center justify-between border-t border-white/10 ${
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
@@ -174,15 +184,13 @@ export default function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            disabled={!isReady || isOutOfStock || hasReachedQuantityLimit}
+            disabled={!isReady || isOutOfStock}
             className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-semibold text-slate-950 transition hover:bg-blue-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
           >
             <ShoppingCart className="size-3.5" aria-hidden="true" />
             {isOutOfStock
               ? "Unavailable"
-              : hasReachedQuantityLimit
-                ? "Cart full"
-                : "Add to cart"}
+              : "Add to cart"}
           </button>
           <span
             className={`font-bold text-foreground ${
