@@ -260,6 +260,7 @@ function ProductCarousel({ products }: { products: HomeProduct[] }) {
               <ProductCard
                 {...product}
                 compact
+                showAddToCart={false}
                 href={`/products/${product.id}`}
               />
             </motion.div>

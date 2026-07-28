@@ -15,6 +15,9 @@ export default function SiteFooter() {
             Practical digital, print, office, and computer essentials for a
             flexible everyday catalog.
           </p>
+          <p className="mt-3 text-xs text-slate-400">
+            © 2026 Eugene Subrado Productions.
+          </p>
         </div>
 
         <nav aria-label="Footer navigation" className="flex flex-wrap gap-4">

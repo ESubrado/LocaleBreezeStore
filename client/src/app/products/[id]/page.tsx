@@ -360,6 +360,7 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
                   <MotionReveal key={relatedProduct.id} delay={index * 0.1}>
                     <ProductCard
                       {...relatedProduct}
+                      showAddToCart={false}
                       href={`/products/${relatedProduct.id}`}
                     />
                   </MotionReveal>
