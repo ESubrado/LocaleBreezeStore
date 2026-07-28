@@ -20,6 +20,7 @@ export type ProductCardProps = CartProduct & {
   imagePosition?: string;
   tags: string[];
   compact?: boolean;
+  showAddToCart?: boolean;
   href?: string;
 };
 
@@ -42,6 +43,7 @@ export default function ProductCard({
   quantity,
   lowStockThreshold,
   compact = false,
+  showAddToCart = true,
   href,
 }: ProductCardProps) {
   const { addItem, getItemQuantity, isReady } = useCart();
@@ -181,17 +183,24 @@ export default function ProductCard({
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
           }`}
         >
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={!isReady || isOutOfStock}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-semibold text-slate-950 transition hover:bg-blue-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
-          >
-            <ShoppingCart className="size-3.5" aria-hidden="true" />
-            {isOutOfStock
-              ? "Unavailable"
-              : "Add to cart"}
-          </button>
+          {showAddToCart ? (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={!isReady || isOutOfStock}
+              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-semibold text-slate-950 transition hover:bg-blue-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+            >
+              <ShoppingCart className="size-3.5" aria-hidden="true" />
+              {isOutOfStock ? "Unavailable" : "Add to cart"}
+            </button>
+          ) : (
+            <Link
+              href={href ?? "/products"}
+              className="inline-flex min-h-10 items-center rounded-full border border-white/10 px-3 text-xs font-semibold text-slate-300 transition hover:border-blue-500/40 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            >
+              View product
+            </Link>
+          )}
           <span
             className={`font-bold text-foreground ${
               compact ? "text-base" : "text-lg"
