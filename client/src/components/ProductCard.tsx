@@ -1,7 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
+import { useCart } from "@/components/CartProvider";
+import type { CartProduct } from "@/lib/cart";
 
-export type ProductCardProps = {
+export type ProductCardProps = CartProduct & {
   name: string;
   category: string;
   description: string;
@@ -20,24 +26,55 @@ const fallbackProductImage = "/locale-breeze-general-store-hero.png";
 
 export default function ProductCard({
   name,
+  id,
   category,
   description,
   format,
   price,
+  priceAmount,
+  currency,
   imageUrl,
   imageUrls,
   imageAlt,
   imagePosition = "center",
   tags,
+  quantity,
   compact = false,
   href,
 }: ProductCardProps) {
+  const { addItem, getItemQuantity, isReady } = useCart();
   const visibleTags = compact ? tags.slice(0, 2) : tags;
   const defaultImageUrl = imageUrls?.[0] ?? imageUrl ?? fallbackProductImage;
+  const cartQuantity = getItemQuantity(id);
+  const isOutOfStock = quantity === 0;
+  const hasReachedQuantityLimit =
+    quantity !== null && cartQuantity >= quantity;
 
-  const card = (
+  const handleAddToCart = () => {
+    const result = addItem({
+      id,
+      name,
+      priceAmount,
+      currency,
+      imageUrl: defaultImageUrl,
+      imageAlt,
+      quantity,
+    });
+
+    if (result === "added") {
+      toast.success(`${name} added to your cart.`);
+      return;
+    }
+
+    toast.error(
+      result === "unavailable"
+        ? `${name} is currently unavailable.`
+        : `All available ${name} items are already in your cart.`,
+    );
+  };
+
+  return (
     <article
-      role="article"
       className="group flex h-full flex-col overflow-hidden rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:-translate-y-0.5 hover:bg-white/10"
     >
       <div
@@ -46,14 +83,31 @@ export default function ProductCard({
         }`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
-        <Image
-          src={defaultImageUrl}
-          alt={imageAlt}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          style={{ objectPosition: imagePosition }}
-        />
+        {href ? (
+          <Link
+            href={href}
+            aria-label={`View details for ${name}`}
+            className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400"
+          >
+            <Image
+              src={defaultImageUrl}
+              alt={imageAlt}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              style={{ objectPosition: imagePosition }}
+            />
+          </Link>
+        ) : (
+          <Image
+            src={defaultImageUrl}
+            alt={imageAlt}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            style={{ objectPosition: imagePosition }}
+          />
+        )}
       </div>
 
       <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
@@ -66,13 +120,24 @@ export default function ProductCard({
           </span>
         </div>
 
-        <h3
-          className={`font-semibold tracking-normal text-foreground ${
-            compact ? "mt-3 text-base leading-5" : "mt-4 text-lg leading-6"
-          }`}
-        >
-          {name}
-        </h3>
+        {href ? (
+          <Link
+            href={href}
+            className={`mt-3 font-semibold tracking-normal text-foreground hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
+              compact ? "text-base leading-5" : "mt-4 text-lg leading-6"
+            }`}
+          >
+            {name}
+          </Link>
+        ) : (
+          <h3
+            className={`font-semibold tracking-normal text-foreground ${
+              compact ? "mt-3 text-base leading-5" : "mt-4 text-lg leading-6"
+            }`}
+          >
+            {name}
+          </h3>
+        )}
         <p
           className={`mt-2 flex-1 overflow-hidden text-slate-400 ${
             compact ? "text-xs leading-5" : "text-sm leading-6"
@@ -106,7 +171,19 @@ export default function ProductCard({
             compact ? "mt-3 pt-3" : "mt-5 pt-4"
           }`}
         >
-          <span className="text-sm font-medium text-slate-500">Sample</span>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!isReady || isOutOfStock || hasReachedQuantityLimit}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-semibold text-slate-950 transition hover:bg-blue-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+          >
+            <ShoppingCart className="size-3.5" aria-hidden="true" />
+            {isOutOfStock
+              ? "Unavailable"
+              : hasReachedQuantityLimit
+                ? "Cart full"
+                : "Add to cart"}
+          </button>
           <span
             className={`font-bold text-foreground ${
               compact ? "text-base" : "text-lg"
@@ -117,19 +194,5 @@ export default function ProductCard({
         </div>
       </div>
     </article>
-  );
-
-  if (!href) {
-    return card;
-  }
-
-  return (
-    <Link
-      href={href}
-      aria-label={`View details for ${name}`}
-      className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-    >
-      {card}
-    </Link>
   );
 }

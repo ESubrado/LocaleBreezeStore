@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Outfit } from "next/font/google";
 import { Toaster } from "sonner";
+import CartProvider from "@/components/CartProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,7 +37,7 @@ export default function RootLayout({
       className={`${inter.variable} ${outfit.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
-        {children}
+        <CartProvider>{children}</CartProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

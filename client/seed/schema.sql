@@ -36,6 +36,7 @@ create table if not exists public.products (
   image_position varchar(40) default 'center',
   tags jsonb not null default '[]'::jsonb,
   stock_quantity integer check (stock_quantity is null or stock_quantity >= 0),
+  quantity integer check (quantity is null or quantity >= 0),
   is_featured boolean not null default false,
   is_sample boolean not null default true,
   is_active boolean not null default true,
@@ -50,6 +51,9 @@ alter table public.products
 
 alter table public.products
   add column if not exists image_urls jsonb not null default '[]'::jsonb;
+
+alter table public.products
+  add column if not exists quantity integer check (quantity is null or quantity >= 0);
 
 alter table public.catalogs
   add column if not exists image_url text not null default '/locale-breeze-general-store-hero.png';

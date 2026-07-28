@@ -19,6 +19,7 @@ import {
 } from "@/lib/products";
 import productDetailTechBg from "@/app/assets/product-detail-tech-bg.png";
 import MotionReveal from "@/components/MotionReveal";
+import AddToCartButton from "@/components/AddToCartButton";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import SiteFooter from "@/components/SiteFooter";
@@ -139,6 +140,15 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
+                <AddToCartButton
+                  id={product.id}
+                  name={product.name}
+                  priceAmount={product.priceAmount}
+                  currency={product.currency}
+                  imageUrl={product.imageUrl}
+                  imageAlt={product.imageAlt}
+                  quantity={product.quantity}
+                />
                 <Button
                   asChild
                   size="lg"

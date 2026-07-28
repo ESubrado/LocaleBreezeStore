@@ -40,6 +40,7 @@ type ProductRow = {
   image_position: string | null;
   tags: Json | null;
   stock_quantity: number | null;
+  quantity: number | null;
   is_featured: boolean;
   is_sample: boolean;
   catalog_id: number | null;
@@ -68,12 +69,15 @@ export type Product = {
   format: string;
   fulfillmentType: string;
   price: string;
+  priceAmount: number;
+  currency: string;
   imageUrl: string;
   imageUrls: string[];
   imageAlt: string;
   imagePosition?: string;
   tags: string[];
   stockQuantity: number | null;
+  quantity: number | null;
   isFeatured: boolean;
   isSample: boolean;
   catalogId: number | null;
@@ -142,6 +146,7 @@ const productColumns = `
   image_position,
   tags,
   stock_quantity,
+  quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -164,6 +169,7 @@ const legacyProductColumns = `
   image_position,
   tags,
   stock_quantity,
+  quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -185,6 +191,7 @@ const baseProductColumns = `
   image_position,
   tags,
   stock_quantity,
+  quantity,
   is_featured,
   is_sample,
   catalog_id,
@@ -286,6 +293,12 @@ function formatPrice(amount: number | string, currency: string) {
   }
 }
 
+function toPriceAmount(amount: number | string) {
+  const numericAmount = Number(amount);
+
+  return Number.isFinite(numericAmount) ? numericAmount : 0;
+}
+
 function mapCatalogRow(row: CatalogRow): ProductCatalog {
   // This converts database snake_case columns into the camelCase shape the
   // existing React components already understand.
@@ -328,12 +341,15 @@ function mapProductRow(row: ProductRow): Product {
     format: row.format,
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
+    priceAmount: toPriceAmount(row.price_amount),
+    currency: row.currency,
     imageUrl,
     imageUrls: resolvedImageUrls,
     imageAlt: row.image_alt,
     imagePosition: row.image_position ?? undefined,
     tags: toStringArray(row.tags),
-    stockQuantity: row.stock_quantity,
+    stockQuantity: row.quantity ?? row.stock_quantity,
+    quantity: row.quantity,
     isFeatured: row.is_featured,
     isSample: row.is_sample,
     catalogId: row.catalog_id,

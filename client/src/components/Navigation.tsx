@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ShoppingCart } from "lucide-react";
 import AdminLoginDropdown from "@/components/AdminLoginDropdown";
+import { useCart } from "@/components/CartProvider";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
+  { href: "/cart", label: "Cart" },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -16,6 +19,7 @@ function isActivePath(pathname: string, href: string) {
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { itemCount, isReady } = useCart();
   const navListRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [activePill, setActivePill] = useState({
@@ -101,13 +105,30 @@ export default function Navigation() {
                   linkRefs.current[link.href] = node;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 rounded-sm px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                className={`relative z-10 inline-flex items-center gap-1 rounded-sm px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   isActive
                     ? "text-white"
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
-                {link.label}
+                {link.href === "/cart" ? (
+                  <>
+                    <ShoppingCart className="size-4" aria-hidden="true" />
+                    Cart
+                    <span
+                      aria-label={
+                        isReady
+                          ? `${itemCount} item${itemCount === 1 ? "" : "s"} in cart`
+                          : "Loading cart"
+                      }
+                      className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-950/40 px-1.5 py-0.5 text-[11px] font-bold text-white"
+                    >
+                      {isReady ? itemCount : "..."}
+                    </span>
+                  </>
+                ) : (
+                  link.label
+                )}
               </Link>
             );
           })}

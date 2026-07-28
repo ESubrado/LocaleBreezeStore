@@ -14,6 +14,7 @@ type AdminProductRow = {
   price_amount: number | string;
   currency: string;
   stock_quantity: number | null;
+  quantity: number | null;
   is_featured: boolean;
   is_sample: boolean;
   is_active: boolean;
@@ -53,6 +54,7 @@ const adminProductColumns = `
   price_amount,
   currency,
   stock_quantity,
+  quantity,
   is_featured,
   is_sample,
   is_active,
@@ -89,7 +91,7 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
     format: row.format,
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
-    stockQuantity: row.stock_quantity,
+    stockQuantity: row.quantity ?? row.stock_quantity,
     isFeatured: row.is_featured,
     isSample: row.is_sample,
     isActive: row.is_active,
