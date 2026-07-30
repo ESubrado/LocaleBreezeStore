@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Json =
   | string
@@ -23,6 +23,8 @@ type AdminProductRow = {
   currency: string;
   image_url?: string | null;
   image_urls?: Json | null;
+  image_alt: string;
+  image_position: string | null;
   tags: Json | null;
   stock_quantity: number | null;
   quantity: number | null;
@@ -34,6 +36,7 @@ type AdminProductRow = {
   is_active: boolean;
   catalog_id: number | null;
   display_order: number | null;
+  created_at: string;
   updated_at: string;
 };
 
@@ -47,9 +50,17 @@ export type AdminProduct = {
   format: string;
   fulfillmentType: string;
   price: string;
+  priceAmount: number;
+  currency: string;
+  imageUrl: string | null;
+  imageUrls: string[];
   imagePaths: string[];
+  imageAlt: string;
+  imagePosition: string | null;
   tags: string[];
+  legacyStockQuantity: number | null;
   stockQuantity: number | null;
+  quantity: number | null;
   lowStockThreshold: number | null;
   reorderPoint: number | null;
   reorderQuantity: number | null;
@@ -58,6 +69,7 @@ export type AdminProduct = {
   isActive: boolean;
   catalogId: number | null;
   displayOrder: number;
+  createdAt: string;
   updatedAt: string;
 };
 
@@ -74,6 +86,8 @@ const adminProductColumns = `
   currency,
   image_url,
   image_urls,
+  image_alt,
+  image_position,
   tags,
   stock_quantity,
   quantity,
@@ -85,6 +99,7 @@ const adminProductColumns = `
   is_active,
   catalog_id,
   display_order,
+  created_at,
   updated_at
 `;
 
@@ -100,6 +115,8 @@ const legacyAdminProductColumns = `
   price_amount,
   currency,
   image_url,
+  image_alt,
+  image_position,
   tags,
   stock_quantity,
   quantity,
@@ -111,6 +128,7 @@ const legacyAdminProductColumns = `
   is_active,
   catalog_id,
   display_order,
+  created_at,
   updated_at
 `;
 
@@ -182,9 +200,17 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
     format: row.format,
     fulfillmentType: row.fulfillment_type,
     price: formatPrice(row.price_amount, row.currency),
+    priceAmount: Number(row.price_amount),
+    currency: row.currency,
+    imageUrl: row.image_url ?? null,
+    imageUrls,
     imagePaths,
+    imageAlt: row.image_alt,
+    imagePosition: row.image_position,
     tags: toStringArray(row.tags),
+    legacyStockQuantity: row.stock_quantity,
     stockQuantity: row.quantity ?? row.stock_quantity,
+    quantity: row.quantity,
     lowStockThreshold: row.low_stock_threshold,
     reorderPoint: row.reorder_point,
     reorderQuantity: row.reorder_quantity,
@@ -193,12 +219,13 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
     isActive: row.is_active,
     catalogId: row.catalog_id,
     displayOrder: row.display_order ?? 0,
+    createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
 export async function getAdminProducts(): Promise<AdminProduct[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const productResult = await supabase
     .from("products")

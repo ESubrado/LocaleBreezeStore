@@ -30,6 +30,12 @@ kept in the app source.
   The seed creates one `opening_balance` movement for every tracked physical
   product. Future restocks, sales, returns, and corrections should add new
   movement rows instead of editing history.
+- The protected admin stock workflow uses the adjust_product_inventory
+  function in schema.sql to update the current quantity and append the
+  matching inventory movement in one transaction.
+- Admin product deletion is permanent. Products with inventory movement history
+  cannot be deleted, so mark those products inactive to preserve the audit
+  trail.
 - Catalog `image_url` values store a filename or absolute image URL. Filename
   values are loaded from the public Supabase Storage bucket named
   `catalog-images` under `<catalog-slug>/<filename>`.
@@ -44,3 +50,5 @@ kept in the app source.
   `image_url` for list defaults and backward-compatible reads.
 - Inserts and updates should be done through the Supabase dashboard, SQL Editor,
   a protected admin route, or a server-only script with a secret key.
+- To enable product editing, stock adjustment, and deletion in an existing
+  project, run the latest schema.sql.

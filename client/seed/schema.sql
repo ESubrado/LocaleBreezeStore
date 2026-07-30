@@ -104,6 +104,123 @@ create index if not exists products_catalog_id_idx
 create index if not exists inventory_movements_product_created_idx
   on public.inventory_movements (product_id, created_at desc);
 
+-- Adjusting stock must update the current quantity and append an inventory
+-- movement together. This function locks the product row so concurrent admin
+-- adjustments cannot overwrite one another.
+create or replace function public.adjust_product_inventory(
+  p_product_id integer,
+  p_action varchar(20),
+  p_quantity integer,
+  p_note text,
+  p_source_reference varchar(120)
+)
+returns table (
+  product_id integer,
+  previous_quantity integer,
+  current_quantity integer,
+  inventory_movement_id bigint
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  previous_quantity_value integer;
+  quantity_change_value integer;
+  current_quantity_value integer;
+  fulfillment_type_value varchar(80);
+  movement_reason_value varchar(40);
+  movement_id_value bigint;
+begin
+  if auth.uid() is null then
+    raise exception 'An authenticated admin is required.';
+  end if;
+
+  if p_quantity is null or p_quantity < 0 then
+    raise exception 'Quantity must be a non-negative whole number.';
+  end if;
+
+  if p_action not in ('add', 'deduct', 'set') then
+    raise exception 'Unsupported inventory action.';
+  end if;
+
+  if nullif(trim(coalesce(p_note, '')), '') is null then
+    raise exception 'A stock adjustment note is required.';
+  end if;
+
+  if nullif(trim(coalesce(p_source_reference, '')), '') is null then
+    raise exception 'A source reference is required.';
+  end if;
+
+  select
+    coalesce(quantity, stock_quantity, 0),
+    fulfillment_type
+  into
+    previous_quantity_value,
+    fulfillment_type_value
+  from public.products
+  where id = p_product_id
+  for update;
+
+  if not found then
+    raise exception 'Product not found.';
+  end if;
+
+  if lower(fulfillment_type_value) <> 'shipping' then
+    raise exception 'Only shippable products can have tracked stock.';
+  end if;
+
+  if p_action = 'add' then
+    quantity_change_value := p_quantity;
+    movement_reason_value := 'restock';
+  elsif p_action = 'deduct' then
+    quantity_change_value := -p_quantity;
+    movement_reason_value := 'adjustment';
+  else
+    quantity_change_value := p_quantity - previous_quantity_value;
+    movement_reason_value := 'adjustment';
+  end if;
+
+  if quantity_change_value = 0 then
+    raise exception 'The stock quantity is unchanged.';
+  end if;
+
+  current_quantity_value := previous_quantity_value + quantity_change_value;
+
+  if current_quantity_value < 0 then
+    raise exception 'Stock cannot be reduced below zero.';
+  end if;
+
+  update public.products
+  set quantity = current_quantity_value
+  where id = p_product_id;
+
+  insert into public.inventory_movements (
+    product_id,
+    quantity_change,
+    reason,
+    note,
+    source_reference,
+    created_by
+  ) values (
+    p_product_id,
+    quantity_change_value,
+    movement_reason_value,
+    trim(p_note),
+    trim(p_source_reference),
+    auth.uid()
+  )
+  returning id into movement_id_value;
+
+  return query
+  select
+    p_product_id,
+    previous_quantity_value,
+    current_quantity_value,
+    movement_id_value;
+end;
+$$;
+
 -- A tiny trigger helper keeps updated_at current whenever dashboard edits happen.
 create or replace function public.set_updated_at()
 returns trigger
@@ -144,6 +261,46 @@ on public.products
 for select
 to anon
 using (is_active = true);
+
+-- The /admin page is protected by a Supabase Auth session. Its edit endpoint
+-- validates the allowed product fields before applying an update.
+drop policy if exists "Authenticated admins can read products" on public.products;
+create policy "Authenticated admins can read products"
+on public.products
+for select
+to authenticated
+using (true);
+
+drop policy if exists "Authenticated admins can update products" on public.products;
+create policy "Authenticated admins can update products"
+on public.products
+for update
+to authenticated
+using (true)
+with check (true);
+
+drop policy if exists "Authenticated admins can delete products" on public.products;
+create policy "Authenticated admins can delete products"
+on public.products
+for delete
+to authenticated
+using (true);
+
+revoke all on function public.adjust_product_inventory(
+  integer,
+  varchar,
+  integer,
+  text,
+  varchar
+) from public;
+
+grant execute on function public.adjust_product_inventory(
+  integer,
+  varchar,
+  integer,
+  text,
+  varchar
+) to authenticated;
 
 -- Inventory history is deliberately private. Add authenticated admin policies
 -- only when an admin inventory-history screen and authorization rules exist.
