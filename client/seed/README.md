@@ -16,8 +16,10 @@ kept in the app source.
 1. Open your Supabase project dashboard.
 2. Go to **SQL Editor**.
 3. Run `schema.sql`.
-4. Run `seed.sql`.
-5. Restart the Next dev server so it reloads `.env`.
+4. Run `metadata.sql` to create and seed the reusable catalog and product
+   dropdown values.
+5. Run `seed.sql`.
+6. Restart the Next dev server so it reloads `.env`.
 
 ## Notes
 
@@ -52,3 +54,6 @@ kept in the app source.
   a protected admin route, or a server-only script with a secret key.
 - To enable product editing, stock adjustment, and deletion in an existing
   project, run the latest schema.sql.
+- `metadata.sql` creates the `metadata_options` table, its protected admin
+  policies, the catalog editing policies, and initial dropdown values. It is
+  safe to rerun: values that already exist are left unchanged.

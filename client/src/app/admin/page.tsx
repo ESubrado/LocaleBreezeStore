@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import AdminAccessGate from "@/components/AdminAccessGate";
 import AdminCatalogTable from "@/components/AdminCatalogTable";
+import AdminMetadataTable from "@/components/AdminMetadataTable";
 import AdminProductsTable from "@/components/AdminProductsTable";
 import { getAdminCatalogs } from "@/lib/adminCatalogs";
+import { getAdminMetadataOptions } from "@/lib/adminMetadata";
 import { getAdminProducts } from "@/lib/adminProducts";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import SiteFooter from "@/components/SiteFooter";
@@ -33,9 +35,10 @@ export default async function AdminPage() {
   }
 
   const { data: claimsData } = await supabase.auth.getClaims();
-  const [catalogs, products] = await Promise.all([
+  const [catalogs, products, metadataOptions] = await Promise.all([
     getAdminCatalogs(),
     getAdminProducts(),
+    getAdminMetadataOptions(),
   ]);
   const expiresAt =
     typeof claimsData?.claims.exp === "number"
@@ -95,6 +98,12 @@ export default async function AdminPage() {
                   Products
                 </TabsTrigger>
                 <TabsTrigger
+                  value="metadata"
+                  className="text-slate-400 hover:bg-white/10 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                >
+                  Metadata
+                </TabsTrigger>
+                <TabsTrigger
                   value="pages"
                   className="text-slate-400 hover:bg-white/10 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white"
                 >
@@ -104,11 +113,34 @@ export default async function AdminPage() {
             </div>
 
             <TabsContent value="catalog">
-              <AdminCatalogTable catalogs={catalogs} />
+              <AdminCatalogTable
+                catalogs={catalogs}
+                metadataOptions={metadataOptions}
+              />
             </TabsContent>
 
             <TabsContent value="products">
-              <AdminProductsTable products={products} />
+              <AdminProductsTable
+                metadataOptions={metadataOptions}
+                products={products}
+              />
+            </TabsContent>
+
+            <TabsContent value="metadata">
+              <div className="grid gap-6 xl:grid-cols-2">
+                <AdminMetadataTable
+                  entityType="catalog"
+                  options={metadataOptions.filter(
+                    (option) => option.entityType === "catalog",
+                  )}
+                />
+                <AdminMetadataTable
+                  entityType="product"
+                  options={metadataOptions.filter(
+                    (option) => option.entityType === "product",
+                  )}
+                />
+              </div>
             </TabsContent>
 
             <TabsContent value="pages">
