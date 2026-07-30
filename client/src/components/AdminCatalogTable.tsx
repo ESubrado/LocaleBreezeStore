@@ -45,7 +45,7 @@ export default function AdminCatalogTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1120px] text-left text-sm">
+          <table className="w-full min-w-full text-left text-sm">
           <thead className="bg-white/5 text-xs font-semibold uppercase tracking-normal text-slate-400">
             <tr>
               <th className="px-4 py-3">Catalog</th>
