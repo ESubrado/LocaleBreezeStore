@@ -66,7 +66,7 @@ export default async function AdminPage() {
 
         <AdminAccessGate session={session} />
 
-        <section className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 sm:px-8 lg:pb-24">
+        <section className="relative z-10 w-full px-8 pb-16 sm:px-6 lg:pb-24">
           <Tabs defaultValue="catalog" className="w-full">
             <div className="flex flex-col gap-4 border-b border-white/10 pb-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
@@ -123,7 +123,7 @@ export default async function AdminPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[680px] text-left text-sm">
+                  <table className="w-full min-w-full text-left text-sm">
                     <thead className="bg-white/5 text-xs font-semibold uppercase tracking-normal text-slate-400">
                       <tr>
                         <th className="px-4 py-3">Control</th>

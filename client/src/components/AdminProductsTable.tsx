@@ -1,8 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Package, Pencil, Trash2 } from "lucide-react";
 
+import AdminInventoryAdjustmentDialog from "@/components/AdminInventoryAdjustmentDialog";
+import AdminProductDeleteDialog from "@/components/AdminProductDeleteDialog";
+import AdminProductEditDialog from "@/components/AdminProductEditDialog";
 import AdminTablePagination from "@/components/AdminTablePagination";
+import { Button } from "@/components/ui/button";
 import type { AdminProduct } from "@/lib/adminProducts";
 
 const PAGE_SIZE = 5;
@@ -31,6 +37,13 @@ export default function AdminProductsTable({
   products: AdminProduct[];
 }) {
   const [page, setPage] = useState(1);
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(
+    null,
+  );
+  const [stockProduct, setStockProduct] = useState<AdminProduct | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<AdminProduct | null>(
+    null,
+  );
   const pageCount = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const visibleProducts = useMemo(() => {
@@ -49,17 +62,22 @@ export default function AdminProductsTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1160px] text-left text-sm">
+        <table className="w-full min-w-full text-left text-sm">
           <thead className="bg-white/5 text-xs font-semibold uppercase tracking-normal text-slate-400">
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">SKU</th>
+              <th className="px-4 py-3">Images</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Inventory</th>
+              <th className="px-4 py-3">Tags</th>
               <th className="px-4 py-3">Flags</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Updated</th>
+              <th className="px-4 py-3">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
@@ -87,6 +105,25 @@ export default function AdminProductsTable({
                       <span className="text-slate-500">None</span>
                     )}
                   </td>
+                  <td className="px-4 py-4">
+                    {product.imagePaths.length > 0 ? (
+                      <>
+                        <code
+                          className="block max-w-[12rem] truncate rounded-md bg-white/10 px-2 py-1 text-xs font-medium text-slate-200"
+                          title={product.imagePaths[0]}
+                        >
+                          {product.imagePaths[0]}
+                        </code>
+                        {product.imagePaths.length > 1 && (
+                          <span className="mt-1 block text-xs text-slate-500">
+                            {product.imagePaths.length} images
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-slate-500">Default</span>
+                    )}
+                  </td>
                   <td className="px-4 py-4 text-slate-300">
                     <span className="block font-medium text-slate-200">
                       {product.category}
@@ -112,6 +149,9 @@ export default function AdminProductsTable({
                         {product.reorderQuantity ?? "not set"}
                       </span>
                     ) : null}
+                  </td>
+                  <td className="max-w-xs px-4 py-4 text-slate-300">
+                    {product.tags.length > 0 ? product.tags.join(", ") : "None"}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-2">
@@ -144,12 +184,48 @@ export default function AdminProductsTable({
                   <td className="px-4 py-4 text-slate-300">
                     {formatDate(product.updatedAt)}
                   </td>
+                  <td className="px-4 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      {product.fulfillmentType === "shipping" ? (
+                        <Button
+                          className="border-emerald-500/30 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 hover:text-white"
+                          onClick={() => setStockProduct(product)}
+                          size="sm"
+                          type="button"
+                          variant="outline"
+                        >
+                          <Package />
+                          Stock
+                        </Button>
+                      ) : null}
+                      <Button
+                        className="border-blue-500/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 hover:text-white"
+                        onClick={() => setEditingProduct(product)}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        <Pencil />
+                        Edit
+                      </Button>
+                      <Button
+                        className="border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-100"
+                        onClick={() => setDeletingProduct(product)}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        <Trash2 />
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={11}
                   className="px-4 py-8 text-center text-sm text-slate-400"
                 >
                   No product rows available.
@@ -168,6 +244,30 @@ export default function AdminProductsTable({
         pageSize={PAGE_SIZE}
         totalCount={products.length}
       />
+
+      <AnimatePresence>
+        {editingProduct ? (
+          <AdminProductEditDialog
+            key={"edit-" + editingProduct.id}
+            onClose={() => setEditingProduct(null)}
+            product={editingProduct}
+          />
+        ) : null}
+        {stockProduct ? (
+          <AdminInventoryAdjustmentDialog
+            key={"stock-" + stockProduct.id}
+            onClose={() => setStockProduct(null)}
+            product={stockProduct}
+          />
+        ) : null}
+        {deletingProduct ? (
+          <AdminProductDeleteDialog
+            key={"delete-" + deletingProduct.id}
+            onClose={() => setDeletingProduct(null)}
+            product={deletingProduct}
+          />
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
