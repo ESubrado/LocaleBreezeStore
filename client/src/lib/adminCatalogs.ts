@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Json =
   | string
@@ -17,6 +17,8 @@ type AdminCatalogRow = {
   description: string;
   sample_item_count: number | null;
   image_url?: string | null;
+  image_alt?: string | null;
+  image_position?: string | null;
   examples: Json | null;
   display_order: number | null;
   is_active: boolean;
@@ -32,6 +34,8 @@ export type AdminCatalog = {
   sampleItemCount: number;
   imageUrl: string | null;
   imagePath: string | null;
+  imageAlt: string;
+  imagePosition: string | null;
   examples: string[];
   displayOrder: number;
   isActive: boolean;
@@ -46,6 +50,8 @@ const adminCatalogColumns = `
   description,
   sample_item_count,
   image_url,
+  image_alt,
+  image_position,
   examples,
   display_order,
   is_active,
@@ -59,6 +65,8 @@ const legacyAdminCatalogColumns = `
   title,
   description,
   sample_item_count,
+  image_alt,
+  image_position,
   examples,
   display_order,
   is_active,
@@ -112,6 +120,8 @@ function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {
     sampleItemCount: row.sample_item_count ?? 0,
     imageUrl: row.image_url ?? null,
     imagePath: getCatalogImagePath(row.slug, row.image_url),
+    imageAlt: row.image_alt ?? "",
+    imagePosition: row.image_position ?? null,
     examples: toStringArray(row.examples),
     displayOrder: row.display_order ?? 0,
     isActive: row.is_active,
@@ -121,7 +131,7 @@ function mapAdminCatalogRow(row: AdminCatalogRow): AdminCatalog {
 }
 
 export async function getAdminCatalogs(): Promise<AdminCatalog[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const catalogResult = await supabase
     .from("catalogs")

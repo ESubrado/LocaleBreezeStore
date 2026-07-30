@@ -9,6 +9,7 @@ import AdminProductDeleteDialog from "@/components/AdminProductDeleteDialog";
 import AdminProductEditDialog from "@/components/AdminProductEditDialog";
 import AdminTablePagination from "@/components/AdminTablePagination";
 import { Button } from "@/components/ui/button";
+import type { AdminMetadataOption } from "@/lib/metadata";
 import type { AdminProduct } from "@/lib/adminProducts";
 
 const PAGE_SIZE = 5;
@@ -32,8 +33,10 @@ function formatInventory(value: number | null) {
 }
 
 export default function AdminProductsTable({
+  metadataOptions,
   products,
 }: {
+  metadataOptions: AdminMetadataOption[];
   products: AdminProduct[];
 }) {
   const [page, setPage] = useState(1);
@@ -249,6 +252,7 @@ export default function AdminProductsTable({
         {editingProduct ? (
           <AdminProductEditDialog
             key={"edit-" + editingProduct.id}
+            metadataOptions={metadataOptions}
             onClose={() => setEditingProduct(null)}
             product={editingProduct}
           />

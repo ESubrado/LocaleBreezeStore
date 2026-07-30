@@ -1,9 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Pencil } from "lucide-react";
 
+import AdminCatalogEditDialog from "@/components/AdminCatalogEditDialog";
 import AdminTablePagination from "@/components/AdminTablePagination";
+import { Button } from "@/components/ui/button";
 import type { AdminCatalog } from "@/lib/adminCatalogs";
+import type { AdminMetadataOption } from "@/lib/metadata";
 
 const PAGE_SIZE = 5;
 
@@ -23,10 +28,15 @@ function formatCatalogCount(count: number) {
 
 export default function AdminCatalogTable({
   catalogs,
+  metadataOptions,
 }: {
   catalogs: AdminCatalog[];
+  metadataOptions: AdminMetadataOption[];
 }) {
   const [page, setPage] = useState(1);
+  const [editingCatalog, setEditingCatalog] = useState<AdminCatalog | null>(
+    null,
+  );
   const pageCount = Math.max(1, Math.ceil(catalogs.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const visibleCatalogs = useMemo(() => {
@@ -56,6 +66,9 @@ export default function AdminCatalogTable({
               <th className="px-4 py-3">Examples</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Updated</th>
+              <th className="px-4 py-3">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
@@ -112,12 +125,24 @@ export default function AdminCatalogTable({
                   <td className="px-4 py-4 text-slate-300">
                     {formatDate(catalog.updatedAt)}
                   </td>
+                  <td className="px-4 py-4 text-right">
+                    <Button
+                      className="border-blue-500/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 hover:text-white"
+                      onClick={() => setEditingCatalog(catalog)}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Pencil />
+                      Edit
+                    </Button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-4 py-8 text-center text-sm text-slate-400"
                 >
                   No catalog rows available.
@@ -136,6 +161,17 @@ export default function AdminCatalogTable({
         pageSize={PAGE_SIZE}
         totalCount={catalogs.length}
       />
+
+      <AnimatePresence>
+        {editingCatalog ? (
+          <AdminCatalogEditDialog
+            catalog={editingCatalog}
+            key={"edit-" + editingCatalog.id}
+            metadataOptions={metadataOptions}
+            onClose={() => setEditingCatalog(null)}
+          />
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

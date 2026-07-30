@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { assertActiveMetadataValues } from "@/lib/adminMetadata";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type ProductUpdate = {
@@ -203,6 +204,29 @@ export async function PATCH(
       error instanceof Error ? error.message : "The product data is invalid.";
 
     return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  try {
+    await assertActiveMetadataValues(supabase, "product", {
+      category: [update.category],
+      format: [update.format],
+      fulfillment_type: [update.fulfillment_type],
+      currency: [update.currency],
+      ...(update.image_position
+        ? { image_position: [update.image_position] }
+        : {}),
+      tag: update.tags,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Select configured metadata values before saving.",
+      },
+      { status: 400 },
+    );
   }
 
   const { data, error } = await supabase

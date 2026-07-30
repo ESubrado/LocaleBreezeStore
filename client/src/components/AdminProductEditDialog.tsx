@@ -7,9 +7,14 @@ import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import {
+  getMetadataOptionValues,
+  type AdminMetadataOption,
+} from "@/lib/metadata";
 import type { AdminProduct } from "@/lib/adminProducts";
 
 type AdminProductEditDialogProps = {
+  metadataOptions: AdminMetadataOption[];
   product: AdminProduct;
   onClose: () => void;
 };
@@ -126,6 +131,18 @@ function getList(formData: FormData, field: string) {
   ];
 }
 
+function getSelectedList(formData: FormData, field: string) {
+  return [
+    ...new Set(
+      formData
+        .getAll(field)
+        .filter((value): value is string => typeof value === "string")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
 function getApiError(response: Response, body: unknown) {
   if (
     body &&
@@ -140,6 +157,7 @@ function getApiError(response: Response, body: unknown) {
 }
 
 export default function AdminProductEditDialog({
+  metadataOptions,
   product,
   onClose,
 }: AdminProductEditDialogProps) {
@@ -178,7 +196,7 @@ export default function AdminProductEditDialog({
         image_urls: getList(formData, "imageUrls"),
         image_alt: getRequiredText(formData, "imageAlt"),
         image_position: getOptionalText(formData, "imagePosition"),
-        tags: getList(formData, "tags"),
+        tags: getSelectedList(formData, "tags"),
         low_stock_threshold: getOptionalInteger(
           formData,
           "lowStockThreshold",
@@ -311,22 +329,40 @@ export default function AdminProductEditDialog({
                   label="SKU"
                   name="sku"
                 />
-                <TextField
+                <SelectField
                   defaultValue={product.category}
                   label="Category"
                   name="category"
+                  options={getMetadataOptionValues(
+                    metadataOptions,
+                    "product",
+                    "category",
+                    [product.category],
+                  )}
                   required
                 />
-                <TextField
+                <SelectField
                   defaultValue={product.format}
                   label="Format"
                   name="format"
+                  options={getMetadataOptionValues(
+                    metadataOptions,
+                    "product",
+                    "format",
+                    [product.format],
+                  )}
                   required
                 />
-                <TextField
+                <SelectField
                   defaultValue={product.fulfillmentType}
                   label="Fulfillment type"
                   name="fulfillmentType"
+                  options={getMetadataOptionValues(
+                    metadataOptions,
+                    "product",
+                    "fulfillment_type",
+                    [product.fulfillmentType],
+                  )}
                   required
                 />
                 <TextField
@@ -360,11 +396,16 @@ export default function AdminProductEditDialog({
                   step="0.01"
                   type="number"
                 />
-                <TextField
+                <SelectField
                   defaultValue={product.currency}
                   label="Currency"
-                  maxLength={3}
                   name="currency"
+                  options={getMetadataOptionValues(
+                    metadataOptions,
+                    "product",
+                    "currency",
+                    [product.currency],
+                  )}
                   required
                 />
                 <TextField
@@ -417,17 +458,30 @@ export default function AdminProductEditDialog({
                 name="imageAlt"
                 required
               />
-              <TextField
+              <SelectField
                 defaultValue={product.imagePosition ?? ""}
-                description="For example: center or 72% 65%."
+                description="Configured in the Product metadata table."
                 label="Image position"
                 name="imagePosition"
+                optional
+                options={getMetadataOptionValues(
+                  metadataOptions,
+                  "product",
+                  "image_position",
+                  product.imagePosition ? [product.imagePosition] : [],
+                )}
               />
-              <TextAreaField
-                defaultValue={product.tags.join(", ")}
-                description="Separate tags with commas or new lines."
+              <MultiSelectField
+                defaultValues={product.tags}
+                description="Hold Ctrl (Windows) or Command (Mac) to select multiple tags."
                 label="Tags"
                 name="tags"
+                options={getMetadataOptionValues(
+                  metadataOptions,
+                  "product",
+                  "tag",
+                  product.tags,
+                )}
               />
             </fieldset>
 
@@ -547,6 +601,91 @@ function TextField({
         step={step}
         type={type}
       />
+      {description ? (
+        <span className="mt-1 block text-xs leading-5 text-slate-500">
+          {description}
+        </span>
+      ) : null}
+    </label>
+  );
+}
+
+type SelectFieldProps = {
+  defaultValue: string;
+  description?: string;
+  label: string;
+  name: string;
+  optional?: boolean;
+  options: AdminMetadataOption[];
+  required?: boolean;
+};
+
+function SelectField({
+  defaultValue,
+  description,
+  label,
+  name,
+  optional,
+  options,
+  required,
+}: SelectFieldProps) {
+  return (
+    <label className="block text-xs font-medium text-slate-300">
+      {label}
+      <select
+        className={inputClassName}
+        defaultValue={defaultValue}
+        name={name}
+        required={required}
+      >
+        {optional ? <option value="">No selection</option> : null}
+        {options.map((option) => (
+          <option key={option.id} value={option.value}>
+            {option.value}
+            {!option.isActive ? " (inactive)" : ""}
+          </option>
+        ))}
+      </select>
+      {description ? (
+        <span className="mt-1 block text-xs leading-5 text-slate-500">
+          {description}
+        </span>
+      ) : null}
+    </label>
+  );
+}
+
+type MultiSelectFieldProps = {
+  defaultValues: string[];
+  description?: string;
+  label: string;
+  name: string;
+  options: AdminMetadataOption[];
+};
+
+function MultiSelectField({
+  defaultValues,
+  description,
+  label,
+  name,
+  options,
+}: MultiSelectFieldProps) {
+  return (
+    <label className="block text-xs font-medium text-slate-300">
+      {label}
+      <select
+        className="mt-1.5 min-h-28 w-full rounded-md border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
+        defaultValue={defaultValues}
+        multiple
+        name={name}
+      >
+        {options.map((option) => (
+          <option key={option.id} value={option.value}>
+            {option.value}
+            {!option.isActive ? " (inactive)" : ""}
+          </option>
+        ))}
+      </select>
       {description ? (
         <span className="mt-1 block text-xs leading-5 text-slate-500">
           {description}
