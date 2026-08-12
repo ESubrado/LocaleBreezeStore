@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Outfit } from "next/font/google";
 import { Toaster } from "sonner";
+import AiAssist from "@/components/AiAssist";
 import CartProvider from "@/components/CartProvider";
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         <CartProvider>{children}</CartProvider>
+        <AiAssist />
         <Toaster richColors position="top-right" />
       </body>
     </html>
