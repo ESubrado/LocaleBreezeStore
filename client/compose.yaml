@@ -6,12 +6,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
     env_file:
       - .env
     environment:
       HOSTNAME: 0.0.0.0
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_ENV: production
+      AI_PROVIDER: ${AI_PROVIDER:-ollama}
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:11434}
+      AI_MODEL: ${AI_MODEL:-qwen2.5-coder:7b}
+      AI_API_KEY: ${AI_API_KEY:-}
       PORT: "3000"
     ports:
       - "3000:3000"
