@@ -209,8 +209,8 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4 size-10 border-white/10 bg-black/60 text-white shadow-sm backdrop-blur hover:border-blue-500/40 hover:bg-black/80 hover:text-blue-300" />
-                <CarouselNext className="right-4 size-10 border-white/10 bg-black/60 text-white shadow-sm backdrop-blur hover:border-blue-500/40 hover:bg-black/80 hover:text-blue-300" />
+                <CarouselPrevious className="left-4 size-10 border-2 border-slate-950 bg-slate-950 text-slate-200 [&>svg]:stroke-[2.5] hover:border-blue-400 hover:bg-slate-900 hover:text-blue-300" />
+                <CarouselNext className="right-4 size-10 border-2 border-slate-950 bg-slate-950 text-slate-200 [&>svg]:stroke-[2.5] hover:border-blue-400 hover:bg-slate-900 hover:text-blue-300" />
               </Carousel>
               <div className="absolute bottom-4 left-4 rounded-lg bg-black/60 px-4 py-3 ring-1 ring-white/10 backdrop-blur">
                 <span className="block text-xs font-semibold uppercase tracking-normal text-slate-400">
