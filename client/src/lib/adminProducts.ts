@@ -1,7 +1,9 @@
 import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseServerConfig } from "@/lib/supabase";
 
+/** Supabase JSON values used by the untyped product fields. */
 type Json =
   | string
   | number
@@ -10,6 +12,7 @@ type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+/** Database-shaped product row returned by the admin query. */
 type AdminProductRow = {
   id: number;
   slug: string;
@@ -40,6 +43,7 @@ type AdminProductRow = {
   updated_at: string;
 };
 
+/** Client-safe product model consumed by the admin products table and dialogs. */
 export type AdminProduct = {
   id: number;
   slug: string;
@@ -55,6 +59,7 @@ export type AdminProduct = {
   imageUrl: string | null;
   imageUrls: string[];
   imagePaths: string[];
+  imagePreviewUrls: string[];
   imageAlt: string;
   imagePosition: string | null;
   tags: string[];
@@ -73,6 +78,7 @@ export type AdminProduct = {
   updatedAt: string;
 };
 
+/** Full column selection used when the image_urls migration is available. */
 const adminProductColumns = `
   id,
   slug,
@@ -103,6 +109,7 @@ const adminProductColumns = `
   updated_at
 `;
 
+/** Fallback column selection for databases without image_urls yet. */
 const legacyAdminProductColumns = `
   id,
   slug,
@@ -132,6 +139,7 @@ const legacyAdminProductColumns = `
   updated_at
 `;
 
+/** Normalizes Supabase JSON values or legacy JSON strings into text arrays. */
 function toStringArray(value: Json | null | undefined): string[] {
   if (Array.isArray(value)) {
     return value.filter(
@@ -150,10 +158,12 @@ function toStringArray(value: Json | null | undefined): string[] {
   }
 }
 
+/** Detects URLs and local paths that should not be placed under storage folders. */
 function isAbsoluteImageUrl(value: string) {
   return value.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(value);
 }
 
+/** Produces a readable bucket-relative image path for the admin table. */
 function getProductImagePath(slug: string, imageUrl: string) {
   if (isAbsoluteImageUrl(imageUrl)) {
     return imageUrl;
@@ -164,6 +174,23 @@ function getProductImagePath(slug: string, imageUrl: string) {
   return ["product-images", slug, ...normalizedImageUrl.split("/")].join("/");
 }
 
+function getProductImagePreviewUrl(slug: string, imageUrl: string) {
+  // Admin dialogs run in the browser, so convert storage filenames into public
+  // URLs here while keeping the raw names for database updates.
+  if (isAbsoluteImageUrl(imageUrl)) {
+    return imageUrl;
+  }
+
+  const normalizedImageUrl = imageUrl.trim().replace(/^\.?\//, "");
+  const objectPath = [slug, ...normalizedImageUrl.split("/")]
+    .map(encodeURIComponent)
+    .join("/");
+  const { supabaseUrl } = getSupabaseServerConfig();
+
+  return `${supabaseUrl}/storage/v1/object/public/product-images/${objectPath}`;
+}
+
+/** Formats a stored amount using its product currency with a safe fallback. */
 function formatPrice(amount: number | string, currency: string) {
   const numericAmount = Number(amount);
 
@@ -181,14 +208,24 @@ function formatPrice(amount: number | string, currency: string) {
   }
 }
 
+/** Maps database naming and JSON fields to the client-safe admin product model. */
 function mapAdminProductRow(row: AdminProductRow): AdminProduct {
+  /** Gallery values as stored in the current image_urls column. */
   const imageUrls = toStringArray(row.image_urls);
-  const imagePaths = (imageUrls.length > 0
+  /** Gallery with a legacy primary-image fallback when image_urls is absent. */
+  const storedImageUrls = imageUrls.length > 0
     ? imageUrls
     : row.image_url
       ? [row.image_url]
-      : []
-  ).map((imageUrl) => getProductImagePath(row.slug, imageUrl));
+      : [];
+  /** Bucket-relative paths shown in the product table's Images column. */
+  const imagePaths = storedImageUrls.map((imageUrl) =>
+    getProductImagePath(row.slug, imageUrl),
+  );
+  /** Browser-accessible URLs used to preview existing images in the edit form. */
+  const imagePreviewUrls = storedImageUrls.map((imageUrl) =>
+    getProductImagePreviewUrl(row.slug, imageUrl),
+  );
 
   return {
     id: row.id,
@@ -205,6 +242,7 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
     imageUrl: row.image_url ?? null,
     imageUrls,
     imagePaths,
+    imagePreviewUrls,
     imageAlt: row.image_alt,
     imagePosition: row.image_position,
     tags: toStringArray(row.tags),
@@ -224,19 +262,25 @@ function mapAdminProductRow(row: AdminProductRow): AdminProduct {
   };
 }
 
+/** Loads products for the admin table, including legacy schema compatibility. */
 export async function getAdminProducts(): Promise<AdminProduct[]> {
+  /** Server client used to load product records for the protected admin page. */
   const supabase = await createServerSupabaseClient();
 
+  /** Preferred query including the modern gallery column. */
   const productResult = await supabase
     .from("products")
     .select(adminProductColumns)
     .order("display_order", { ascending: true })
     .order("id", { ascending: true });
 
+  /** Query data, potentially replaced by the legacy-schema fallback below. */
   let data: unknown = productResult.data;
+  /** Query error, potentially replaced by the legacy-schema fallback below. */
   let error: { message: string } | null = productResult.error;
 
   if (error && error.message.includes("image_urls")) {
+    /** Compatible query for installations that have not added image_urls yet. */
     const legacyProductResult = await supabase
       .from("products")
       .select(legacyAdminProductColumns)
