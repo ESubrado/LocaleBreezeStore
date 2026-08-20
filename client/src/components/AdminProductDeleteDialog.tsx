@@ -9,11 +9,13 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import type { AdminProduct } from "@/lib/adminProducts";
 
+/** Product and close callback required by the destructive-action dialog. */
 type AdminProductDeleteDialogProps = {
   product: AdminProduct;
   onClose: () => void;
 };
 
+/** Returns an API error message when available, otherwise uses the status code. */
 function getResponseError(response: Response, body: unknown) {
   if (
     body &&
@@ -31,11 +33,15 @@ export default function AdminProductDeleteDialog({
   product,
   onClose,
 }: AdminProductDeleteDialogProps) {
+  /** Refreshes product data once the deletion request succeeds. */
   const router = useRouter();
+  /** Keeps destructive controls unavailable while the delete request is active. */
   const [isDeleting, setIsDeleting] = useState(false);
+  /** Displays deletion failures without closing the confirmation dialog. */
   const [error, setError] = useState("");
 
   useEffect(() => {
+    /** Lets users dismiss the dialog only while no delete request is running. */
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !isDeleting) {
         onClose();
@@ -47,14 +53,17 @@ export default function AdminProductDeleteDialog({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDeleting, onClose]);
 
+  /** Deletes the selected product, then refreshes the server-rendered table. */
   async function handleDelete() {
     setError("");
     setIsDeleting(true);
 
     try {
+      /** DELETE response used to determine whether the product was removed. */
       const response = await fetch("/api/admin/products/" + product.id, {
         method: "DELETE",
       });
+      /** Optional structured API error body. */
       const body: unknown = await response.json().catch(() => null);
 
       if (!response.ok) {

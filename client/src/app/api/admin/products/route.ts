@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { assertActiveMetadataValues } from "@/lib/adminMetadata";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+/** Validated product fields accepted by the create endpoint. */
 type ProductCreate = {
   sku: string | null;
   name: string;
@@ -25,8 +26,11 @@ type ProductCreate = {
   display_order: number;
 };
 
+/** Supabase bucket containing uploaded product images. */
 const productImagesBucket = "product-images";
+/** Per-image upload limit, matching the browser image manager. */
 const maximumImageBytes = 5 * 1024 * 1024;
+/** Supported upload MIME types and their canonical storage extensions. */
 const supportedImageTypes = new Map([
   ["image/avif", "avif"],
   ["image/gif", "gif"],
@@ -35,6 +39,7 @@ const supportedImageTypes = new Map([
   ["image/webp", "webp"],
 ]);
 
+/** Reads a required, length-limited trimmed string from an untrusted payload. */
 function getRequiredString(
   payload: Record<string, unknown>,
   field: string,
@@ -59,6 +64,7 @@ function getRequiredString(
   return normalizedValue;
 }
 
+/** Reads an optional, length-limited string and normalizes empty values to null. */
 function getOptionalString(
   payload: Record<string, unknown>,
   field: string,
@@ -83,6 +89,7 @@ function getOptionalString(
   return normalizedValue || null;
 }
 
+/** Validates a required or optional non-negative whole-number payload field. */
 function getNonNegativeInteger(
   payload: Record<string, unknown>,
   field: string,
@@ -101,6 +108,7 @@ function getNonNegativeInteger(
   return value;
 }
 
+/** Validates that a payload field is a real boolean. */
 function getBoolean(payload: Record<string, unknown>, field: string) {
   const value = payload[field];
 
@@ -111,6 +119,7 @@ function getBoolean(payload: Record<string, unknown>, field: string) {
   return value;
 }
 
+/** Validates and de-duplicates a list of non-empty strings. */
 function getStringArray(payload: Record<string, unknown>, field: string) {
   const value = payload[field];
 
@@ -121,6 +130,7 @@ function getStringArray(payload: Record<string, unknown>, field: string) {
   return [...new Set(value.map((item) => item.trim()).filter(Boolean))];
 }
 
+/** Converts an untrusted JSON request field into a validated create payload. */
 function parseProductCreate(payload: unknown): ProductCreate {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new Error("A product payload is required.");
@@ -180,6 +190,7 @@ function parseProductCreate(payload: unknown): ProductCreate {
   };
 }
 
+/** Validates the image files supplied in a create-product multipart request. */
 function getImageFiles(formData: FormData) {
   const files = formData
     .getAll("images")
@@ -208,6 +219,7 @@ function getImageFiles(formData: FormData) {
   return files;
 }
 
+/** Builds a URL-safe base slug from the product name. */
 function slugify(name: string) {
   const slug = name
     .toLowerCase()
@@ -220,6 +232,7 @@ function slugify(name: string) {
   return slug || "product";
 }
 
+/** Finds an unused product slug, appending a bounded numeric suffix if needed. */
 async function findAvailableSlug(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   name: string,
@@ -246,6 +259,7 @@ async function findAvailableSlug(
   throw new Error("Unable to create a unique product slug. Try a more specific name.");
 }
 
+/** Parses the JSON product field embedded in the multipart create request. */
 function getProductPayload(formData: FormData) {
   const value = formData.get("product");
 
@@ -264,6 +278,7 @@ function getProductPayload(formData: FormData) {
   }
 }
 
+/** Creates a collision-resistant, ordered storage filename for an uploaded image. */
 function getStorageFileName(file: File, position: number) {
   const extension = supportedImageTypes.get(file.type);
 
@@ -274,6 +289,7 @@ function getStorageFileName(file: File, position: number) {
   return `${String(position + 1).padStart(2, "0")}-${crypto.randomUUID()}.${extension}`;
 }
 
+/** Maps database and validation failures to admin-friendly create errors. */
 function getCreateError(error: unknown) {
   if (
     error &&
@@ -300,7 +316,9 @@ function getCreateError(error: unknown) {
   return error instanceof Error ? error.message : "Unable to create the product.";
 }
 
+/** Creates a product record and uploads its required gallery to Supabase Storage. */
 export async function POST(request: Request) {
+  /** Authenticated server client used for metadata, database, and storage work. */
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -311,10 +329,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
   }
 
+  /** Parsed product data to insert once metadata has been validated. */
   let product: ProductCreate;
+  /** Validated image files to store under the newly created product slug. */
   let files: File[];
 
   try {
+    /** Multipart request body containing product JSON and uploaded files. */
     const formData = await request.formData();
     product = getProductPayload(formData);
     files = getImageFiles(formData);
@@ -343,6 +364,7 @@ export async function POST(request: Request) {
     );
   }
 
+  /** Unique product slug used by the database record and storage folder. */
   let slug: string;
 
   try {
@@ -354,6 +376,7 @@ export async function POST(request: Request) {
     );
   }
 
+  /** Ordered storage names; the first name is the primary storefront image. */
   const storageNames = files.map(getStorageFileName);
   const { data: insertedProduct, error: insertError } = await supabase
     .from("products")
@@ -373,10 +396,12 @@ export async function POST(request: Request) {
     );
   }
 
+  /** Successfully uploaded paths, retained to roll back a partial upload. */
   const uploadedPaths: string[] = [];
 
   try {
     for (const [index, file] of files.entries()) {
+      /** Object path within the product-images bucket for this gallery entry. */
       const objectPath = `${slug}/${storageNames[index]}`;
       const { error } = await supabase.storage
         .from(productImagesBucket)

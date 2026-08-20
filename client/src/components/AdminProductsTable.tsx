@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import type { AdminMetadataOption } from "@/lib/metadata";
 import type { AdminProduct } from "@/lib/adminProducts";
 
+/** Number of products displayed per admin table page. */
 const PAGE_SIZE = 5;
 
+/** Formats a server timestamp for the products table. */
 function formatDate(value: string) {
   const date = new Date(value);
 
@@ -25,10 +27,12 @@ function formatDate(value: string) {
   return date.toLocaleString();
 }
 
+/** Creates the singular or plural product count label. */
 function formatProductCount(count: number) {
   return `${count} ${count === 1 ? "product" : "products"}`;
 }
 
+/** Labels inventory that is not tracked for a product. */
 function formatInventory(value: number | null) {
   return value === null ? "Not tracked" : value;
 }
@@ -40,22 +44,32 @@ export default function AdminProductsTable({
   metadataOptions: AdminMetadataOption[];
   products: AdminProduct[];
 }) {
+  /** Current paginated table view. */
   const [page, setPage] = useState(1);
+  /** Controls visibility of the new-product dialog. */
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  /** Product currently selected for editing, or null when the dialog is closed. */
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(
     null,
   );
+  /** Product selected for a stock adjustment, or null when closed. */
   const [stockProduct, setStockProduct] = useState<AdminProduct | null>(null);
+  /** Product selected for the delete confirmation, or null when closed. */
   const [deletingProduct, setDeletingProduct] = useState<AdminProduct | null>(
     null,
   );
+  /** Total pages after accounting for the fixed table page size. */
   const pageCount = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+  /** Clamps the requested page if the product count has changed. */
   const currentPage = Math.min(page, pageCount);
+  /** The current window of products rendered in the table body. */
   const visibleProducts = useMemo(() => {
+    /** Offset of the first product on the active page. */
     const start = (currentPage - 1) * PAGE_SIZE;
 
     return products.slice(start, start + PAGE_SIZE);
   }, [currentPage, products]);
+  /** The next default sort position offered to a newly created product. */
   const nextDisplayOrder =
     products.length > 0
       ? Math.max(...products.map((product) => product.displayOrder)) + 1

@@ -6,6 +6,11 @@ import { LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 
+import AdminProductImageManager, {
+  createExistingProductImage,
+  type ProductImage,
+  validateProductImages,
+} from "@/components/AdminProductImageManager";
 import { Button } from "@/components/ui/button";
 import {
   getMetadataOptionValues,
@@ -13,12 +18,14 @@ import {
 } from "@/lib/metadata";
 import type { AdminProduct } from "@/lib/adminProducts";
 
+/** Inputs required to edit an existing product record. */
 type AdminProductEditDialogProps = {
   metadataOptions: AdminMetadataOption[];
   product: AdminProduct;
   onClose: () => void;
 };
 
+/** JSON fields submitted with the ordered gallery when updating a product. */
 type ProductUpdatePayload = {
   sku: string | null;
   name: string;
@@ -43,23 +50,29 @@ type ProductUpdatePayload = {
   display_order: number;
 };
 
+/** Shared styling for one-line inputs in the edit form. */
 const inputClassName =
   "mt-1.5 h-9 w-full rounded-md border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 disabled:cursor-not-allowed disabled:opacity-70";
+/** Shared styling for multiline inputs in the edit form. */
 const textAreaClassName =
   "mt-1.5 min-h-24 w-full rounded-md border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 disabled:cursor-not-allowed disabled:opacity-70";
+/** Shared styling for record details that are intentionally not editable. */
 const readOnlyClassName =
   "mt-1.5 flex min-h-9 items-center rounded-md border border-white/10 bg-white/5 px-3 text-sm text-slate-400";
 
+/** Formats an API timestamp or provides a safe display fallback. */
 function formatDate(value: string) {
   const date = new Date(value);
 
   return Number.isNaN(date.getTime()) ? "Unavailable" : date.toLocaleString();
 }
 
+/** Presents nullable inventory values consistently in the record summary. */
 function formatInventory(value: number | null) {
   return value === null ? "Not tracked" : String(value);
 }
 
+/** Reads a required trimmed text field from the submitted form. */
 function getRequiredText(formData: FormData, field: string) {
   const value = formData.get(field);
 
@@ -70,6 +83,7 @@ function getRequiredText(formData: FormData, field: string) {
   return value.trim();
 }
 
+/** Reads optional text and normalizes an empty value to null for the API. */
 function getOptionalText(formData: FormData, field: string) {
   const value = formData.get(field);
 
@@ -78,6 +92,7 @@ function getOptionalText(formData: FormData, field: string) {
     : null;
 }
 
+/** Parses and validates the non-negative product price. */
 function getPrice(formData: FormData) {
   const value = Number(getRequiredText(formData, "priceAmount"));
 
@@ -88,6 +103,7 @@ function getPrice(formData: FormData) {
   return value;
 }
 
+/** Parses an optional non-negative whole-number form field. */
 function getOptionalInteger(formData: FormData, field: string) {
   const value = getOptionalText(formData, field);
 
@@ -104,6 +120,7 @@ function getOptionalInteger(formData: FormData, field: string) {
   return numberValue;
 }
 
+/** Requires an integer field after applying the optional integer parser. */
 function getRequiredInteger(formData: FormData, field: string) {
   const value = getOptionalInteger(formData, field);
 
@@ -114,23 +131,7 @@ function getRequiredInteger(formData: FormData, field: string) {
   return value;
 }
 
-function getList(formData: FormData, field: string) {
-  const value = formData.get(field);
-
-  if (typeof value !== "string") {
-    return [];
-  }
-
-  return [
-    ...new Set(
-      value
-        .split(/[\n,]/)
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
-  ];
-}
-
+/** Converts selected multi-select values into a unique list for the API. */
 function getSelectedList(formData: FormData, field: string) {
   return [
     ...new Set(
@@ -143,6 +144,7 @@ function getSelectedList(formData: FormData, field: string) {
   ];
 }
 
+/** Prefers a server-provided error message over a generic HTTP fallback. */
 function getApiError(response: Response, body: unknown) {
   if (
     body &&
@@ -161,11 +163,29 @@ export default function AdminProductEditDialog({
   product,
   onClose,
 }: AdminProductEditDialogProps) {
+  /** Refreshes the server-rendered product table after a successful update. */
   const router = useRouter();
+  const [images, setImages] = useState<ProductImage[]>(() => {
+    // Products created before image_urls existed may only have image_url, so
+    // retain that legacy fallback when building the editable gallery.
+    const currentImages =
+      product.imageUrls.length > 0
+        ? product.imageUrls
+        : product.imageUrl
+          ? [product.imageUrl]
+          : [];
+
+    return currentImages.map((imageUrl, index) =>
+      createExistingProductImage(imageUrl, product.imagePreviewUrls[index]),
+    );
+  });
+  /** Prevents duplicate submissions and changes while saving. */
   const [isSaving, setIsSaving] = useState(false);
+  /** Displays client validation or server failures in the dialog. */
   const [error, setError] = useState("");
 
   useEffect(() => {
+    /** Closes the dialog from the keyboard unless a save is already underway. */
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !isSaving) {
         onClose();
@@ -177,12 +197,20 @@ export default function AdminProductEditDialog({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSaving, onClose]);
 
+  /** Serializes product fields and the mixed image gallery into multipart data. */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
     try {
+      validateProductImages(images);
+      /** Captures editable text, number, select, and checkbox values. */
       const formData = new FormData(event.currentTarget);
+      /** Stored image names that remain part of the edited gallery. */
+      const existingImageUrls = images.flatMap((image) =>
+        image.kind === "existing" ? [image.name] : [],
+      );
+      /** Normalized fields validated by the product update endpoint. */
       const payload: ProductUpdatePayload = {
         sku: getOptionalText(formData, "sku"),
         name: getRequiredText(formData, "name"),
@@ -192,8 +220,11 @@ export default function AdminProductEditDialog({
         fulfillment_type: getRequiredText(formData, "fulfillmentType"),
         price_amount: getPrice(formData),
         currency: getRequiredText(formData, "currency").toUpperCase(),
-        image_url: getRequiredText(formData, "imageUrl"),
-        image_urls: getList(formData, "imageUrls"),
+        image_url:
+          images[0]?.kind === "existing"
+            ? images[0].name
+            : product.imageUrl || "new-product-image",
+        image_urls: existingImageUrls,
         image_alt: getRequiredText(formData, "imageAlt"),
         image_position: getOptionalText(formData, "imagePosition"),
         tags: getSelectedList(formData, "tags"),
@@ -210,11 +241,32 @@ export default function AdminProductEditDialog({
         display_order: getRequiredInteger(formData, "displayOrder"),
       };
 
+      // Multipart data carries new files while imageOrder preserves the mixed
+      // existing/new gallery order after additions, removals, and reordering.
+      const requestBody = new FormData();
+
+      requestBody.set("product", JSON.stringify(payload));
+      requestBody.set(
+        "imageOrder",
+        JSON.stringify(
+          images.map((image) =>
+            image.kind === "existing"
+              ? { kind: "existing", name: image.name }
+              : { id: image.id, kind: "new" },
+          ),
+        ),
+      );
+      images.forEach((image) => {
+        if (image.kind === "new") {
+          requestBody.append("newImageIds", image.id);
+          requestBody.append("images", image.file);
+        }
+      });
+
       setIsSaving(true);
       const response = await fetch("/api/admin/products/" + product.id, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: requestBody,
       });
       const responseBody: unknown = await response.json().catch(() => null);
 
@@ -440,17 +492,10 @@ export default function AdminProductEditDialog({
               <legend className="px-1 text-sm font-semibold text-white">
                 Media and tags
               </legend>
-              <TextField
-                defaultValue={product.imageUrl ?? ""}
-                label="Primary image filename or URL"
-                name="imageUrl"
-                required
-              />
-              <TextAreaField
-                defaultValue={product.imageUrls.join("\n")}
-                description="One filename or URL per line. These are stored under the product slug when using filenames."
-                label="Image gallery"
-                name="imageUrls"
+              <AdminProductImageManager
+                disabled={isSaving}
+                images={images}
+                onChange={setImages}
               />
               <TextField
                 defaultValue={product.imageAlt}
@@ -553,6 +598,7 @@ export default function AdminProductEditDialog({
   );
 }
 
+/** Displays immutable product metadata in the edit dialog's record summary. */
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -562,6 +608,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** Props for a standard one-line edit field. */
 type TextFieldProps = {
   defaultValue: string;
   description?: string;
@@ -575,6 +622,7 @@ type TextFieldProps = {
   type?: "number" | "text";
 };
 
+/** Renders a labeled text or numeric field with optional helper text. */
 function TextField({
   defaultValue,
   description,
@@ -610,6 +658,7 @@ function TextField({
   );
 }
 
+/** Props for a metadata-backed select field. */
 type SelectFieldProps = {
   defaultValue: string;
   description?: string;
@@ -620,6 +669,7 @@ type SelectFieldProps = {
   required?: boolean;
 };
 
+/** Renders a selectable product metadata value with its current default. */
 function SelectField({
   defaultValue,
   description,
@@ -655,6 +705,7 @@ function SelectField({
   );
 }
 
+/** Props for the tags multi-select control. */
 type MultiSelectFieldProps = {
   defaultValues: string[];
   description?: string;
@@ -663,6 +714,7 @@ type MultiSelectFieldProps = {
   options: AdminMetadataOption[];
 };
 
+/** Renders a multiple-value metadata selector for the product's tags. */
 function MultiSelectField({
   defaultValues,
   description,
@@ -695,6 +747,7 @@ function MultiSelectField({
   );
 }
 
+/** Props for a multiline edit field. */
 type TextAreaFieldProps = {
   defaultValue: string;
   description?: string;
@@ -703,6 +756,7 @@ type TextAreaFieldProps = {
   required?: boolean;
 };
 
+/** Renders a labeled multiline field with optional supporting copy. */
 function TextAreaField({
   defaultValue,
   description,
@@ -728,6 +782,7 @@ function TextAreaField({
   );
 }
 
+/** Renders a styled boolean product setting. */
 function CheckboxField({
   defaultChecked,
   label,

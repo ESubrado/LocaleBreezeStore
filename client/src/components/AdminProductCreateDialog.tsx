@@ -1,34 +1,30 @@
 "use client";
 
-import {
-  type FormEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ImagePlus,
-  LoaderCircle,
-  X,
-} from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 
+import AdminProductImageManager, {
+  getNewProductImageFiles,
+  type ProductImage,
+  validateProductImages,
+} from "@/components/AdminProductImageManager";
 import { Button } from "@/components/ui/button";
 import {
   getMetadataOptionValues,
   type AdminMetadataOption,
 } from "@/lib/metadata";
 
+/** Inputs supplied by the product table when opening the creation dialog. */
 type AdminProductCreateDialogProps = {
   defaultDisplayOrder: number;
   metadataOptions: AdminMetadataOption[];
   onClose: () => void;
 };
 
+/** JSON product fields sent alongside the selected image files. */
 type ProductCreatePayload = {
   sku: string | null;
   name: string;
@@ -51,26 +47,16 @@ type ProductCreatePayload = {
   display_order: number;
 };
 
-type SelectedImage = {
-  file: File;
-  id: string;
-  previewUrl: string;
-};
-
-const maximumImageBytes = 5 * 1024 * 1024;
-const supportedImageTypes = new Set([
-  "image/avif",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
+/** Shared styling for one-line inputs in the create form. */
 const inputClassName =
   "mt-1.5 h-9 w-full rounded-md border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 disabled:cursor-not-allowed disabled:opacity-70";
+/** Shared styling for multiline inputs in the create form. */
 const textAreaClassName =
   "mt-1.5 min-h-24 w-full rounded-md border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 disabled:cursor-not-allowed disabled:opacity-70";
 
+/** Reads a required trimmed text field from the submitted form. */
 function getRequiredText(formData: FormData, field: string) {
+  /** Raw value returned from the browser FormData object. */
   const value = formData.get(field);
 
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -80,6 +66,7 @@ function getRequiredText(formData: FormData, field: string) {
   return value.trim();
 }
 
+/** Reads optional text and normalizes an empty value to null for the API. */
 function getOptionalText(formData: FormData, field: string) {
   const value = formData.get(field);
 
@@ -88,6 +75,7 @@ function getOptionalText(formData: FormData, field: string) {
     : null;
 }
 
+/** Parses and validates the non-negative product price. */
 function getPrice(formData: FormData) {
   const value = Number(getRequiredText(formData, "priceAmount"));
 
@@ -98,6 +86,7 @@ function getPrice(formData: FormData) {
   return value;
 }
 
+/** Parses an optional non-negative whole-number form field. */
 function getOptionalInteger(formData: FormData, field: string) {
   const value = getOptionalText(formData, field);
 
@@ -114,6 +103,7 @@ function getOptionalInteger(formData: FormData, field: string) {
   return numberValue;
 }
 
+/** Requires an integer field after applying the optional integer parser. */
 function getRequiredInteger(formData: FormData, field: string) {
   const value = getOptionalInteger(formData, field);
 
@@ -124,6 +114,7 @@ function getRequiredInteger(formData: FormData, field: string) {
   return value;
 }
 
+/** Converts the selected values of a multi-select control into unique strings. */
 function getSelectedList(formData: FormData, field: string) {
   return [
     ...new Set(
@@ -136,6 +127,7 @@ function getSelectedList(formData: FormData, field: string) {
   ];
 }
 
+/** Prefers the API's descriptive error message over a generic HTTP fallback. */
 function getApiError(response: Response, body: unknown) {
   if (
     body &&
@@ -149,40 +141,23 @@ function getApiError(response: Response, body: unknown) {
   return "Unable to create the product (" + response.status + ").";
 }
 
-function validateFiles(files: File[]) {
-  if (files.length === 0) {
-    throw new Error("Select at least one product image.");
-  }
-
-  if (files.length > 10) {
-    throw new Error("A product can have at most 10 images.");
-  }
-
-  for (const file of files) {
-    if (!supportedImageTypes.has(file.type)) {
-      throw new Error(
-        file.name + " is not supported. Use AVIF, GIF, JPEG, PNG, or WebP.",
-      );
-    }
-
-    if (file.size > maximumImageBytes) {
-      throw new Error(file.name + " must be 5 MB or smaller.");
-    }
-  }
-}
-
 export default function AdminProductCreateDialog({
   defaultDisplayOrder,
   metadataOptions,
   onClose,
 }: AdminProductCreateDialogProps) {
+  /** Refreshes server-rendered table data after a successful creation. */
   const router = useRouter();
-  const previewUrls = useRef(new Set<string>());
-  const [images, setImages] = useState<SelectedImage[]>([]);
+  // The shared manager owns the gallery interactions; this dialog owns the
+  // final ordered selection used to construct the create request.
+  const [images, setImages] = useState<ProductImage[]>([]);
+  /** Disables dialog actions while the create request is in progress. */
   const [isSaving, setIsSaving] = useState(false);
+  /** Displays validation and network errors near the form actions. */
   const [error, setError] = useState("");
 
   useEffect(() => {
+    /** Closes the dialog from the keyboard unless a save is already underway. */
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !isSaving) {
         onClose();
@@ -194,87 +169,16 @@ export default function AdminProductCreateDialog({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSaving, onClose]);
 
-  useEffect(() => {
-    const urls = previewUrls.current;
-
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-      urls.clear();
-    };
-  }, []);
-
-  function addImages(fileList: FileList | null) {
-    if (!fileList) {
-      return;
-    }
-
-    const files = Array.from(fileList);
-
-    try {
-      validateFiles([...images.map((image) => image.file), ...files]);
-      const nextImages = files.map((file) => {
-        const previewUrl = URL.createObjectURL(file);
-        previewUrls.current.add(previewUrl);
-
-        return {
-          file,
-          id: crypto.randomUUID(),
-          previewUrl,
-        };
-      });
-
-      setImages((currentImages) => [...currentImages, ...nextImages]);
-      setError("");
-    } catch (fileError) {
-      setError(
-        fileError instanceof Error
-          ? fileError.message
-          : "Unable to add the selected images.",
-      );
-    }
-  }
-
-  function removeImage(id: string) {
-    setImages((currentImages) => {
-      const image = currentImages.find((item) => item.id === id);
-
-      if (image) {
-        URL.revokeObjectURL(image.previewUrl);
-        previewUrls.current.delete(image.previewUrl);
-      }
-
-      return currentImages.filter((item) => item.id !== id);
-    });
-  }
-
-  function moveImage(id: string, direction: -1 | 1) {
-    setImages((currentImages) => {
-      const currentIndex = currentImages.findIndex((image) => image.id === id);
-      const nextIndex = currentIndex + direction;
-
-      if (
-        currentIndex < 0 ||
-        nextIndex < 0 ||
-        nextIndex >= currentImages.length
-      ) {
-        return currentImages;
-      }
-
-      const reorderedImages = [...currentImages];
-      const [image] = reorderedImages.splice(currentIndex, 1);
-      reorderedImages.splice(nextIndex, 0, image);
-
-      return reorderedImages;
-    });
-  }
-
+  /** Validates the form, then sends product JSON and images as multipart data. */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
     try {
-      validateFiles(images.map((image) => image.file));
+      validateProductImages(images);
+      /** Captures editable text, number, and select values from the form. */
       const formData = new FormData(event.currentTarget);
+      /** Normalized product fields expected by the create API. */
       const product: ProductCreatePayload = {
         sku: getOptionalText(formData, "sku"),
         name: getRequiredText(formData, "name"),
@@ -299,10 +203,13 @@ export default function AdminProductCreateDialog({
         catalog_id: getOptionalInteger(formData, "catalogId"),
         display_order: getRequiredInteger(formData, "displayOrder"),
       };
+      /** Multipart request body combines JSON product data with binary images. */
       const requestBody = new FormData();
 
       requestBody.set("product", JSON.stringify(product));
-      images.forEach((image) => requestBody.append("images", image.file));
+      getNewProductImageFiles(images).forEach((file) =>
+        requestBody.append("images", file),
+      );
 
       setIsSaving(true);
       const response = await fetch("/api/admin/products", {
@@ -471,92 +378,11 @@ export default function AdminProductCreateDialog({
               <legend className="px-1 text-sm font-semibold text-white">
                 Media and tags
               </legend>
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-medium text-slate-300">
-                      Product images
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Upload up to 10 AVIF, GIF, JPEG, PNG, or WebP files (5 MB
-                      each). The first image is the primary storefront image.
-                    </p>
-                  </div>
-                  <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-blue-500/30 bg-blue-500/10 px-3 text-sm font-medium text-blue-100 transition hover:bg-blue-500/20">
-                    <ImagePlus className="size-4" />
-                    Choose images
-                    <input
-                      accept="image/avif,image/gif,image/jpeg,image/png,image/webp"
-                      className="sr-only"
-                      disabled={isSaving || images.length >= 10}
-                      multiple
-                      onChange={(event) => {
-                        addImages(event.currentTarget.files);
-                        event.currentTarget.value = "";
-                      }}
-                      type="file"
-                    />
-                  </label>
-                </div>
-
-                {images.length > 0 ? (
-                  <ol className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {images.map((image, index) => (
-                      <li
-                        key={image.id}
-                        className="overflow-hidden rounded-md border border-white/10 bg-slate-950/50"
-                      >
-                        <img
-                          alt=""
-                          className="h-32 w-full object-cover"
-                          src={image.previewUrl}
-                        />
-                        <div className="flex items-center gap-2 p-2">
-                          <span className="min-w-0 flex-1 truncate text-xs text-slate-300">
-                            {index === 0 ? "Primary · " : ""}
-                            {image.file.name}
-                          </span>
-                          <Button
-                            aria-label={`Move ${image.file.name} earlier`}
-                            disabled={isSaving || index === 0}
-                            onClick={() => moveImage(image.id, -1)}
-                            size="icon-xs"
-                            type="button"
-                            variant="ghost"
-                          >
-                            <ArrowLeft />
-                          </Button>
-                          <Button
-                            aria-label={`Move ${image.file.name} later`}
-                            disabled={isSaving || index === images.length - 1}
-                            onClick={() => moveImage(image.id, 1)}
-                            size="icon-xs"
-                            type="button"
-                            variant="ghost"
-                          >
-                            <ArrowRight />
-                          </Button>
-                          <Button
-                            aria-label={`Remove ${image.file.name}`}
-                            className="text-red-300 hover:bg-red-500/10 hover:text-red-200"
-                            disabled={isSaving}
-                            onClick={() => removeImage(image.id)}
-                            size="icon-xs"
-                            type="button"
-                            variant="ghost"
-                          >
-                            <X />
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="mt-4 rounded-md border border-dashed border-white/15 px-3 py-5 text-center text-sm text-slate-500">
-                    No images selected yet.
-                  </p>
-                )}
-              </div>
+              <AdminProductImageManager
+                disabled={isSaving}
+                images={images}
+                onChange={setImages}
+              />
               <TextField label="Image alt text" name="imageAlt" required />
               <SelectField
                 description="Configured in the Product metadata table."
@@ -646,6 +472,7 @@ export default function AdminProductCreateDialog({
   );
 }
 
+/** Props for a standard one-line form field. */
 type TextFieldProps = {
   defaultValue?: string;
   description?: string;
@@ -658,6 +485,7 @@ type TextFieldProps = {
   type?: "number" | "text";
 };
 
+/** Renders a labeled text or numeric input with optional help text. */
 function TextField({
   defaultValue,
   description,
@@ -691,6 +519,7 @@ function TextField({
   );
 }
 
+/** Props for a metadata-backed select field. */
 type SelectFieldProps = {
   description?: string;
   label: string;
@@ -700,6 +529,7 @@ type SelectFieldProps = {
   required?: boolean;
 };
 
+/** Renders a product metadata select with active and inactive values. */
 function SelectField({
   description,
   label,
@@ -730,6 +560,7 @@ function SelectField({
   );
 }
 
+/** Renders a multiple-value metadata selector, used for product tags. */
 function MultiSelectField({
   description,
   label,
@@ -764,6 +595,7 @@ function MultiSelectField({
   );
 }
 
+/** Renders a labeled multiline text input with optional supporting copy. */
 function TextAreaField({
   label,
   name,
@@ -781,6 +613,7 @@ function TextAreaField({
   );
 }
 
+/** Renders a styled boolean product setting. */
 function CheckboxField({
   defaultChecked = false,
   label,
