@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Package, Pencil, Trash2 } from "lucide-react";
+import { Package, Pencil, Plus, Trash2 } from "lucide-react";
 
 import AdminInventoryAdjustmentDialog from "@/components/AdminInventoryAdjustmentDialog";
+import AdminProductCreateDialog from "@/components/AdminProductCreateDialog";
 import AdminProductDeleteDialog from "@/components/AdminProductDeleteDialog";
 import AdminProductEditDialog from "@/components/AdminProductEditDialog";
 import AdminTablePagination from "@/components/AdminTablePagination";
@@ -40,6 +41,7 @@ export default function AdminProductsTable({
   products: AdminProduct[];
 }) {
   const [page, setPage] = useState(1);
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(
     null,
   );
@@ -54,14 +56,30 @@ export default function AdminProductsTable({
 
     return products.slice(start, start + PAGE_SIZE);
   }, [currentPage, products]);
+  const nextDisplayOrder =
+    products.length > 0
+      ? Math.max(...products.map((product) => product.displayOrder)) + 1
+      : 0;
 
   return (
     <div className="overflow-hidden rounded-lg bg-white/5 ring-1 ring-white/10">
       <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3">
-        <h3 className="text-sm font-semibold text-foreground">Products</h3>
-        <span className="text-xs font-medium text-slate-400">
-          {formatProductCount(products.length)}
-        </span>
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Products</h3>
+          <span className="text-xs font-medium text-slate-400">
+            {formatProductCount(products.length)}
+          </span>
+        </div>
+        <Button
+          className="border-blue-500/30 bg-blue-500/10 text-blue-100 hover:bg-blue-500/20 hover:text-white"
+          onClick={() => setIsCreatingProduct(true)}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          <Plus />
+          New product
+        </Button>
       </div>
 
       <div className="overflow-x-auto">
@@ -249,6 +267,14 @@ export default function AdminProductsTable({
       />
 
       <AnimatePresence>
+        {isCreatingProduct ? (
+          <AdminProductCreateDialog
+            defaultDisplayOrder={nextDisplayOrder}
+            key="create-product"
+            metadataOptions={metadataOptions}
+            onClose={() => setIsCreatingProduct(false)}
+          />
+        ) : null}
         {editingProduct ? (
           <AdminProductEditDialog
             key={"edit-" + editingProduct.id}
