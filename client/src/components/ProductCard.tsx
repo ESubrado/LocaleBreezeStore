@@ -21,6 +21,7 @@ export type ProductCardProps = CartProduct & {
   tags: string[];
   compact?: boolean;
   showAddToCart?: boolean;
+  showFeaturedBanner?: boolean;
   href?: string;
 };
 
@@ -44,6 +45,7 @@ export default function ProductCard({
   lowStockThreshold,
   compact = false,
   showAddToCart = true,
+  showFeaturedBanner = false,
   href,
 }: ProductCardProps) {
   const { addItem, getItemQuantity, isReady } = useCart();
@@ -89,6 +91,11 @@ export default function ProductCard({
         }`}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
+        {showFeaturedBanner && (
+          <span className="pointer-events-none absolute -left-9 top-4 z-20 w-32 -rotate-45 bg-emerald-500 py-1 text-center text-[10px] font-bold uppercase tracking-wider text-emerald-950 shadow-lg">
+            Featured
+          </span>
+        )}
         {href ? (
           <Link
             href={href}
