@@ -271,8 +271,8 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
   const productResult = await supabase
     .from("products")
     .select(adminProductColumns)
-    .order("display_order", { ascending: true })
-    .order("id", { ascending: true });
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
 
   /** Query data, potentially replaced by the legacy-schema fallback below. */
   let data: unknown = productResult.data;
@@ -284,8 +284,8 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
     const legacyProductResult = await supabase
       .from("products")
       .select(legacyAdminProductColumns)
-      .order("display_order", { ascending: true })
-      .order("id", { ascending: true });
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
 
     data = legacyProductResult.data;
     error = legacyProductResult.error;
