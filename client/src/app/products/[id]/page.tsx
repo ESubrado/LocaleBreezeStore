@@ -108,7 +108,7 @@ export default async function ProductItemPage({ params }: ProductPageProps) {
         <div className="fixed inset-0 -z-30 bg-gradient-to-b from-slate-950/40 via-slate-950/75 to-slate-950" />
         <div className="fluid-home-noise" />
 
-        <section className="relative overflow-hidden px-5 pb-16 pt-24 sm:px-8 lg:pb-24">
+        <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:px-8 lg:pb-24 lg:pt-24">
           <div className="fluid-home-gradient-blur" />
           <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <MotionReveal>
