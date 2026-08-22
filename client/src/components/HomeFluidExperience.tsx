@@ -88,7 +88,7 @@ export default function HomeFluidExperience({
       <div className="fixed inset-0 -z-30 bg-gradient-to-b from-slate-950/40 via-slate-950/75 to-slate-950" />
       <div className="fluid-home-noise" />
 
-      <ViewportSection className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-24 sm:px-8">
+      <ViewportSection className="relative isolate flex min-h-[calc(100svh-4rem)] items-center justify-center overflow-hidden px-5 py-16 sm:px-8 lg:min-h-[100svh] lg:py-24">
         <div className="absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-b from-blue-500/10 to-transparent" />
         <motion.div className="relative z-10 mx-auto max-w-5xl text-center">
           <motion.p
